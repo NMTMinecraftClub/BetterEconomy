@@ -36,7 +36,7 @@ public class FileManager{
 	public FileManager(){
 		
 		//get the folder, creating if needed
-		folderFile = Bukkit.getPluginManager().getPlugin("HomeWorldPlugin").getDataFolder();
+		folderFile = Bukkit.getPluginManager().getPlugin("BetterEconomy").getDataFolder();
 		if (!folderFile.exists()){
 			folderFile.mkdir();
 		}
@@ -83,7 +83,7 @@ public class FileManager{
 			try {
 				newList.add((T) in.readObject());
 			} catch (ClassNotFoundException e) {
-				System.err.println("[HomeWorldPlugin-Economy]: Error reading accounts file. Class not found.");
+				System.err.println("[BetterEconomy]: Error reading accounts file. Class not found.");
 				e.printStackTrace();
 			}
 		}
@@ -94,7 +94,7 @@ public class FileManager{
 
 		
 		//print to the console
-		System.out.println("[HomeWorldPlugin] Loaded " + filename);
+		System.out.println("[BetterEconomy] Loaded " + filename);
 		
 		return newList;
 	}
@@ -135,7 +135,7 @@ public class FileManager{
 		fout.close();
 		
 		//print to the console
-		System.out.println("[HomeWorldPlugin] Saved " + filename);
+		System.out.println("[BetterEconomy] Saved " + filename);
 		
 		return;
 	}
