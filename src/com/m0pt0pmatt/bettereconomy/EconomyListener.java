@@ -20,7 +20,6 @@ public class EconomyListener implements Listener{
 	 * hook to grab the economy
 	 */
 	private EconomyManager economy;
-	private BetterEconomy plugin;
 	
 	/**
 	 * Default constructor
@@ -28,8 +27,7 @@ public class EconomyListener implements Listener{
 	public EconomyListener(BetterEconomy plugin){
 		
 		//try to grab the EconomyManager
-		this.plugin = plugin;
-		this.economy = plugin.economy;
+		this.economy = BetterEconomy.economy;
 		
 	}
 	
@@ -42,7 +40,7 @@ public class EconomyListener implements Listener{
 		
 		//try to grab the economy. I know
 		while (economy == null){
-			economy = plugin.economy;
+			economy = BetterEconomy.economy;
 			return;
 		}
 		

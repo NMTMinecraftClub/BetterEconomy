@@ -57,16 +57,12 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 	public static double startingBalance = 50.0;
 	
-	private BetterEconomy plugin;
-	
 	/**
 	 * Default Constructor 
 	 */
 	public EconomyManager(BetterEconomy plugin){
 		//create a list for currencies
 		currencies = new LinkedList<Currency>();
-		
-		this.plugin = plugin;
 		
 		//load accounts from file
 		load();
@@ -77,7 +73,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 	public void save(){
 		try {
-			plugin.fileManager.save(accounts, "accounts");
+			BetterEconomy.fileManager.save(accounts, "accounts");
 		} catch (IOException e) {
 			System.err.println("[HomeWorldPlugin-Economy] Error Saving File");
 			e.printStackTrace();
@@ -90,7 +86,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	@SuppressWarnings("unchecked")
 	public void load(){
 		try {
-			accounts = (LinkedList<InventoryAccount>) plugin.fileManager.load("accounts", false);
+			accounts = (LinkedList<InventoryAccount>) BetterEconomy.fileManager.load("accounts", false);
 		} catch (IOException e) {
 			System.err.println("[HomeWorldPlugin-Economy] Error Loading File");
 			e.printStackTrace();
@@ -725,14 +721,6 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		}
 		
 	}
-
-	
-	
-	
-	public void reduceInventory(Inventory inv, int reduce) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	/*
 	 * Here starts the code for the interface to vault.
@@ -741,98 +729,87 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 
 	public EconomyResponse bankBalance(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public EconomyResponse bankDeposit(String arg0, double arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public EconomyResponse bankHas(String arg0, double arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public EconomyResponse bankWithdraw(String arg0, double arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public EconomyResponse createBank(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
-	public boolean createPlayerAccount(String arg0) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean createPlayerAccount(String name) {
+		if (this.hasAccount(name)){
+			return false;
+		}
+		this.addAccount(new InventoryAccount(name));
+		return true;
 	}
 
 	public String currencyNamePlural() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String currencyNameSingular() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public EconomyResponse deleteBank(String arg0) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
-	public EconomyResponse depositPlayer(String arg0, double arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 
-	public String format(double arg0) {
-		// TODO Auto-generated method stub
-		return null;
+	public String format(double amount) {
+		return String.valueOf(amount);
 	}
 
 	public int fractionalDigits() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	public List<String> getBanks() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
+		return "BetterEconomy";
 	}
 
-	public boolean has(String arg0, double arg1) {
-		// TODO Auto-generated method stub
-		return false;
+	public boolean has(String account, double amount) {
+		if (!hasAccount(account)){
+			return false;
+		}
+		if (getAccount(account).getBalance() < amount){
+			return false;
+		}
+		return true;
 	}
 
 	public boolean hasBankSupport() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	public EconomyResponse isBankMember(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public EconomyResponse isBankOwner(String arg0, String arg1) {
-		// TODO Auto-generated method stub
-		return null;
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	
@@ -855,12 +832,13 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @param name Name of the player
 	 * @param amount amount to be added
 	 */
-	public void deposit(String name, double amount) {
+	public EconomyResponse depositPlayer(String name, double amount) {
 		if (!(hasAccount(name))){
-			return;
+			return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No such account exists");
 		}
 		Account account = getAccount(name);
 		account.deposit(amount);
+		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully added "+ amount +" to " + name);
 	}
 	
 }
