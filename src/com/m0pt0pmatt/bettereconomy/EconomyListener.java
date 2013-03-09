@@ -74,6 +74,17 @@ public class EconomyListener implements Listener{
 
 			player.sendMessage("You died in the wilderness");
 			player.sendMessage("$" + valueLost + " was lost from your EnderChest (" + percentLost + "% of currencies)");
+			
+			if(player.getKiller() != null){
+				economy.depositPlayer(player.getKiller().getName(), valueLost);
+				player.getKiller().sendMessage("You have been rewarded " + valueLost + "for killing " + player.getName());
+			}
+			else{
+				if (!economy.hasAccount("__Server")){
+					economy.createPlayerAccount("__Server");
+				}
+				economy.depositPlayer("__Server", valueLost);
+			}
 		}
 	}
 }
