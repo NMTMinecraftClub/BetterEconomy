@@ -10,7 +10,7 @@ public class BetterEconomy extends JavaPlugin{
 
 	
 	public static EconomyManager economy = null;
-	public static FileManager fileManager = null;
+	public static ConfigManager configManager = null;
 	public static FileSavingThread savingThread = null;
 	
 	/**
@@ -20,7 +20,7 @@ public class BetterEconomy extends JavaPlugin{
 	public void onEnable(){		
 		
 		//setup fileManager
-		fileManager = new FileManager();
+		configManager = new ConfigManager(this, "accounts.yml");
 		
 		//setup economy
 		economy = new EconomyManager(this);

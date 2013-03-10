@@ -2,6 +2,7 @@ package com.m0pt0pmatt.bettereconomy;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -63,6 +65,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	public EconomyManager(BetterEconomy plugin){
 		//create a list for currencies
 		currencies = new LinkedList<Currency>();
+		accounts = new LinkedList<InventoryAccount>();
 		
 		//load accounts from file
 		load();
@@ -72,24 +75,33 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * Save economy data to file
 	 */
 	public void save(){
-		try {
-			BetterEconomy.fileManager.save(accounts, "accounts");
-		} catch (IOException e) {
-			System.err.println("[HomeWorldPlugin-Economy] Error Saving File");
-			e.printStackTrace();
+		ConfigManager config = BetterEconomy.configManager;
+		config.getFile().delete();
+		
+		HashMap<String, Double> accountMap = new HashMap<String, Double>();
+		for (Account account: accounts){
+			accountMap.put(account.getOwner(), account.getBalance());
 		}
+		
+		config.getConfig().createSection("accounts", accountMap);
+		
+		config.saveConfig();
+		
 	}
 
 	/**
 	 * load economy data from file
 	 */
-	@SuppressWarnings("unchecked")
 	public void load(){
-		try {
-			accounts = (LinkedList<InventoryAccount>) BetterEconomy.fileManager.load("accounts", false);
-		} catch (IOException e) {
-			System.err.println("[HomeWorldPlugin-Economy] Error Loading File");
-			e.printStackTrace();
+		ConfigManager config = BetterEconomy.configManager;
+		MemorySection section = (MemorySection) config.getConfig().get("accounts");
+		
+		if (accounts == null){
+			accounts = new LinkedList<InventoryAccount>();
+		}
+		accounts.clear();
+		for (String accountName: section.getKeys(false)){
+			accounts.add(new InventoryAccount(accountName, section.getDouble(accountName)));
 		}
 	}
 	

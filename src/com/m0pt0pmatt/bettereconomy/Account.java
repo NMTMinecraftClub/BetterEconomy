@@ -14,7 +14,6 @@ public abstract class Account implements Serializable {
 	
 	private double balance;
 	private String owner;
-	private List<Debt> debts;
 	
 	/**
 	 * Creates a new account with a balance of 0
@@ -33,72 +32,6 @@ public abstract class Account implements Serializable {
 		this.setOwner(owner);
 		this.setBalance(balance);
 		
-		//create an empty list of debts
-		debts = new LinkedList<Debt>();
-	}
-
-	/**
-	 * Returns the list of debts
-	 * @return the list of debts
-	 */
-	public List<Debt> getDebts(){
-		return debts;
-	}
-	
-	/**
-	 * Adds a debt to the list
-	 * @param debt debt to be added
-	 */
-	public void addDebt(Debt debt){
-		debts.add(debt);
-	}
-	
-	/**
-	 * removes a debt from the list
-	 * @param debt debt to be removed
-	 */
-	public void removeDebt(Debt debt){
-		debts.remove(debt);
-	}
-	
-	/**
-	 * Forgives a given payer of all debts he or she owns the account
-	 * @param payer the given payer to be forgiven
-	 */
-	public void removeDebt(String payer){
-		for (Debt d: debts){
-			if (d.getPayer() == payer && d.getReceiver() == owner){
-				debts.remove(d);
-			}
-		}
-	}
-	
-	/**
-	 * Checks if the owner of the account owes a given player
-	 * @param receiver the player that the owner might own
-	 * @return true if the owner owes the receiver, false if not
-	 */
-	public boolean owes(String receiver){
-		for (Debt d: debts){
-			if (d.getPayer() == owner && d.getReceiver() == receiver){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Checks if the given player owes the owner
-	 * @param payer the player that might owe the owner
-	 * @return true if the given player owes the owner
-	 */
-	public boolean payedBy(String payer){
-		for (Debt d: debts){
-			if (d.getPayer() == payer && d.getReceiver() == owner){
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**
