@@ -6,7 +6,6 @@
 #.project
 .metadata
 bin/
-src/
 *.tmp
 *.bak
 *.swp
