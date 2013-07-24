@@ -7,7 +7,6 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BetterEconomy extends JavaPlugin{
-
 	
 	public static EconomyManager economy = null;
 	public static ConfigManager configManager = null;
