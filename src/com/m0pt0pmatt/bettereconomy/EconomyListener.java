@@ -68,7 +68,7 @@ public class EconomyListener implements Listener{
 			// Iterates through arraylist depositing items
 		 	for(Currency currency: economy.getCurrencies()){
 		 		inventoryAmount = economy.countInventory(player.getEnderChest(), currency);
-				economy.depositCurrency(player.getEnderChest(), currency, (int)Math.ceil(inventoryAmount * percentLost / 100.));
+				economy.removeCurrency(player.getEnderChest(), currency, (int)Math.ceil(inventoryAmount * percentLost / 100.));
 				valueLost += economy.getCurrencyValue(currency.getName()) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
 		 	}
 

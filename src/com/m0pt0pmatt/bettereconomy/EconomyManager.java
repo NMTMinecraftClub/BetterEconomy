@@ -1,6 +1,5 @@
 package com.m0pt0pmatt.bettereconomy;
 
-import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -45,9 +44,14 @@ class BalanceComparator implements Comparator<Account>{
 public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	
 	/**
-	 * List of all currently loaded currencies
+	 * Lists of all currently loaded currencies
 	 */
 	private List<Currency> currencies;
+	
+	/**
+	 * List of currencies not used in trade, but in enderchest penalties
+	 */
+	private List<Currency> ores;
 	
 	/**
 	 * List of all currently loaded accounts
@@ -65,6 +69,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	public EconomyManager(BetterEconomy plugin){
 		//create a list for currencies
 		currencies = new LinkedList<Currency>();
+		ores = new LinkedList<Currency>();
 		accounts = new LinkedList<InventoryAccount>();
 		
 		//load accounts from file
@@ -99,12 +104,17 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		if (accounts == null){
 			accounts = new LinkedList<InventoryAccount>();
 		}
+		
+		if (section == null){
+			return;
+		}
 		accounts.clear();
 		for (String accountName: section.getKeys(false)){
 			accounts.add(new InventoryAccount(accountName, section.getDouble(accountName)));
 		}
 	}
 	
+
 	/**
 	 * Add a currency to the list of valid currencies
 	 * @param newCurrency the new Currency type to be added
@@ -113,9 +123,26 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		currencies.add(newCurrency);
 	}
 	
+	/**
+	 * Add a currency to the list of ores
+	 * @param newOre
+	 */
+	public void addOre(Currency newOre){
+		ores.add(newOre);
+	}
+	
 	public Currency getCurrency(String currencyName){
 		for (Currency c: currencies){
 			if (c.getName().equals(currencyName)){
+				return c;
+			}
+		}
+		return null;
+	}
+	
+	public Currency getOre(String oreName){
+		for (Currency c: ores){
+			if (c.getName().equals(oreName)){
 				return c;
 			}
 		}
@@ -131,6 +158,14 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	/**
+	 * Returns the list of ores
+	 * @return the list of ores
+	 */
+	public List<Currency> getOres() {
+		return ores;
+	}
+
+	/**
 	 * Checks if the given currency is in the list of valid currencies
 	 * @param currency
 	 * @return true if currency is a valid currency, false if not
@@ -145,17 +180,17 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	/**
-	 * Checks if the given currency is in the list of valid currencies
-	 * @param currency
-	 * @return true if currency is a valid currency, false if not
+	 * Checks if given ore is in the list of ore currencies
+	 * @param ore
+	 * @return true if ore is in list of ores, false if not
 	 */
-	public boolean containsCurrency(String currencyName){
-		for (Currency c: currencies){
-			if (c.getName().equals(currencyName)){
-				return true;
-			}
+	public boolean containsOre(Currency ore){
+		if (ores.contains(ore)){
+			return true;
 		}
-		return false;
+		else{
+			return false;
+		}
 	}
 	
 	/**
@@ -173,7 +208,21 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	/**
-	 * gets the Material of a given currency 
+	 * Gets the dollar value of a given ore
+	 * @param oreName Name of the ore
+	 * @return -1 if invalid, else dollar value
+	 */
+	public int getOreValue(String oreName){
+		for (Currency c: ores){
+			if (c.getName().equals(oreName)){
+				return c.getValue(1);
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Gets the Material of a given currency 
 	 * @param currencyName Name of the currency
 	 * @return null if invalid, else Material of currency
 	 */
@@ -187,13 +236,27 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	}
 	
 	/**
+	 * Gets the Material of a given ore 
+	 * @param oreName Name of the ore
+	 * @return null if invalid, else Material of ore
+	 */
+	public Material getOreMaterial(String oreName){
+		for (Currency c: ores){
+			if (c.getName().equals(oreName)){
+				return c.getMaterial();
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Checks the value of a given amount of a given currency
 	 * @param sender The player executing the command
 	 * @param name The name of the currency
 	 * @param amount The amount specified
 	 */
 	public void checkValue(CommandSender sender, String name, int amount){
-		if (!(containsCurrency(name))){
+		if (!(containsCurrency(getCurrency(name)))){
 			sender.sendMessage("That is not a valid currency");
 			return;
 		}
@@ -215,6 +278,22 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		}
 		return false;
 	}
+	
+	/**
+	 * Checks if an itemstack is a specified ore
+	 * @param stack Itemstack
+	 * @param oreName Ore name
+	 * @return true if so, false if not
+	 */
+	public boolean isOre(ItemStack stack, String oreName){
+		if (stack.getType().equals(getOreMaterial(oreName))){
+			if (stack.getData().getData() == getOre(oreName).getMaterialData()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Counts the number of a currency is in a given inventory
 	 * @param inv The inventory to be checked
@@ -227,6 +306,26 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		for (ItemStack stack : inv.getContents()){
 			if (stack != null){
 				if (isCurrency(stack, currency.getName())){
+					i += stack.getAmount();
+				}
+			}
+		}
+		
+		return i;
+	}
+	
+	/**
+	 * Counts the number of an ore is in a given inventory
+	 * @param inv The inventory to be checked
+	 * @param ore The ore to be counted
+	 * @return The amount of ore in the inventory
+	 */
+	public int countOreInventory(Inventory inv, Currency ore){
+		
+		int i = 0;
+		for (ItemStack stack : inv.getContents()){
+			if (stack != null){
+				if (isOre(stack, ore.getName())){
 					i += stack.getAmount();
 				}
 			}
@@ -353,9 +452,6 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		getAccount(sender.getName()).withdraw(amount * getCurrencyValue(currency));
 		sender.sendMessage(amount + " " + currency + " was withdrawn.");
 		return;
-		
-		//hopefully, this statement never runs
-		//sender.sendMessage("something bad happened, but at least you are not running");
 	}
 
 	/**
@@ -378,7 +474,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		
 		//remove funds
 		getAccount(sender.getName()).withdraw(i * getCurrencyValue(currency.getName()));
-		sender.sendMessage(i + " " + currency + " was withdrawn.");
+		sender.sendMessage(i + " " + currency.getName() + " was withdrawn.");
 		return;
 	}
 	
@@ -455,13 +551,32 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
  	* @param currency The currency to be removed
  	* @amount The ammount of currency to be removed
  	*/
-	public void depositCurrency(Inventory inv, Currency currency, int amount){
+	public void removeCurrency(Inventory inv, Currency currency, int amount){
 	
 		int i = amount;
 		int j = 0;
 		for (ItemStack stack : inv.getContents()){
 			if (stack != null){
 				if (isCurrency(stack, currency.getName())){
+					//finish off this stack
+					if (i < stack.getAmount()){
+						
+						stack.setAmount(stack.getAmount() - i);
+						i = 0;
+						inv.setItem(j, new ItemStack(stack.getType(), stack.getAmount(), (short) 0, currency.getMaterialData()));
+						
+					}
+					//remove the whole stack and keep going
+					else{
+						i -= stack.getAmount();
+						inv.setItem(j, null);
+					}
+					
+					if (i == 0){
+						return;
+					}
+				}
+				else if (isOre(stack, currency.getName())){
 					//finish off this stack
 					if (i < stack.getAmount()){
 						
@@ -492,8 +607,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 *  @param sender The player executing the command
 	 *  @return void
 	 */
-	 public void depositEverything(CommandSender sender){
-	 	
+	 public void depositEverything(CommandSender sender){	 	
 	 	// Iterates through arraylist depositing items
 	 	for(Currency currency: this.getCurrencies()){
 	 		depositAll(sender, currency.getName());	 	
@@ -541,16 +655,12 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		}
 		
 		//remove items
-		depositCurrency(playerInventory, this.getCurrency(currency), amount);
+		removeCurrency(playerInventory, this.getCurrency(currency), amount);
 						
 		//add funds
 		getAccount(sender.getName()).deposit(amount * getCurrencyValue(currency));
 		sender.sendMessage(amount + " " + currency + " was deposited.");
-		return;
-
-		//hopefully, this statement never executes
-		//sender.sendMessage("something bad happened, we're screwed");
-		
+		return;	
 	}
 	
 	/**
@@ -578,14 +688,12 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		//check inventory
 		int amount = countInventory(playerInventory, this.getCurrency(currency));
 		
-		depositCurrency(playerInventory, this.getCurrency(currency), amount);
+		removeCurrency(playerInventory, this.getCurrency(currency), amount);
 						
 		//add funds
 		getAccount(sender.getName()).deposit(amount * getCurrencyValue(currency));
 		sender.sendMessage(amount + " " + currency + " was deposited.");
-		
-		//hopefully, this statement never executes
-		sender.sendMessage("something bad happened, we're screwed");
+		return;
 	}
 
 	/**
@@ -600,6 +708,11 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 			if (stack != null){
 				for (Currency c: currencies){
 					if (isCurrency(stack, c.getName())){
+						wealth += c.getValue(stack.getAmount());
+					}
+				}
+				for (Currency c: ores){
+					if (isOre(stack, c.getName())){
 						wealth += c.getValue(stack.getAmount());
 					}
 				}
