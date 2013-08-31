@@ -965,5 +965,41 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		account.deposit(amount);
 		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully added "+ amount +" to " + name);
 	}
+
+	@Override
+	public boolean createPlayerAccount(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public EconomyResponse depositPlayer(String arg0, String arg1, double arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public double getBalance(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean has(String arg0, String arg1, double arg2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean hasAccount(String arg0, String arg1) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public EconomyResponse withdrawPlayer(String arg0, String arg1, double arg2) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }
