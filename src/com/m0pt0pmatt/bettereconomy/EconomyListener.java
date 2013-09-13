@@ -72,7 +72,7 @@ public class EconomyListener implements Listener{
 				valueLost += economy.getCurrencyValue(currency.getName()) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
 		 	}
 		 	for(Currency currency: economy.getOres()){
-		 		inventoryAmount = economy.countInventory(player.getEnderChest(), currency);
+		 		inventoryAmount = economy.countOreInventory(player.getEnderChest(), currency);
 				economy.removeCurrency(player.getEnderChest(), currency, (int)Math.ceil(inventoryAmount * percentLost / 100.));
 				valueLost += economy.getOreValue(currency.getName()) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
 		 	}
