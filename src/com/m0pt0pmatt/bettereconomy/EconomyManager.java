@@ -698,7 +698,9 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						
 		//add funds
 		getAccount(sender.getName()).deposit(amount * getCurrencyValue(currency));
-		sender.sendMessage(amount + " " + currency + " was deposited.");
+		if (amount != 0){
+			sender.sendMessage(amount + " " + currency + " was deposited.");
+		}
 		return;
 	}
 
