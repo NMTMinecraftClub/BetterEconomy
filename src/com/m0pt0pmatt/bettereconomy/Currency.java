@@ -1,6 +1,7 @@
 package com.m0pt0pmatt.bettereconomy;
 
 import org.bukkit.Material;
+import org.bukkit.material.MaterialData;
 
 /**
  * Defines a physical currency
@@ -15,14 +16,9 @@ public class Currency {
 	private String name;
 	
 	/**
-	 * Material of the currency
+	 * MaterialData of the currency
 	 */
-	private Material material;
-	
-	/**
-	 * Material data for the currency (This is to solve lapis lazuli)
-	 */
-	private byte data;
+	private MaterialData material;
 	
 	/**
 	 * dollar value of currency
@@ -36,15 +32,15 @@ public class Currency {
 	 * @param materialData Material data for the currency (This is to solve lapis lazuli)
 	 * @param value dollar value of currency
 	 */
-	public Currency(String name, Material material, int data, int value){
+	public Currency(String name, MaterialData material, int value){
 		this.name = name;
 		this.material = material;
-		if (data != -1){
-			this.data = (byte) data;
-		}
-		else{
-			this.data = -1;
-		}
+		this.value = value;
+	}
+	
+	public Currency(String name, Material material, int value){
+		this.name = name;
+		this.material = new MaterialData(material);
 		this.value = value;
 	}
 	
@@ -57,19 +53,11 @@ public class Currency {
 	}
 	
 	/**
-	 * Returns the Material of the currency
-	 * @return the Material of the currency
-	 */
-	public Material getMaterial(){
-		return material;
-	}
-	
-	/**
 	 * Returns the MaterialData of the currency
 	 * @return the MaterialData of the currency
 	 */
-	public byte getMaterialData(){
-		return data;
+	public MaterialData getMaterial(){
+		return material;
 	}
 
 	/**

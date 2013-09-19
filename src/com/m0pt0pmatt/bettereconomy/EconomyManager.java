@@ -1,5 +1,6 @@
 package com.m0pt0pmatt.bettereconomy;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,12 +9,12 @@ import java.util.List;
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 class BalanceComparator implements Comparator<Account>{
 	   
@@ -80,17 +81,19 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * Save economy data to file
 	 */
 	public void save(){
-		ConfigManager config = BetterEconomy.configManager;
-		config.getFile().delete();
 		
 		HashMap<String, Double> accountMap = new HashMap<String, Double>();
 		for (Account account: accounts){
 			accountMap.put(account.getOwner(), account.getBalance());
 		}
 		
-		config.getConfig().createSection("accounts", accountMap);
-		
-		config.saveConfig();
+		BetterEconomy.config.createSection("accounts", accountMap);
+		try {
+			BetterEconomy.config.save(BetterEconomy.configFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -98,8 +101,12 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * load economy data from file
 	 */
 	public void load(){
-		ConfigManager config = BetterEconomy.configManager;
-		MemorySection section = (MemorySection) config.getConfig().get("accounts");
+		
+		if (!BetterEconomy.config.contains("accounts")){
+			BetterEconomy.config.createSection("accounts");
+		}
+		
+		MemorySection section = (MemorySection) BetterEconomy.config.get("accounts");
 		
 		if (accounts == null){
 			accounts = new LinkedList<InventoryAccount>();
@@ -226,9 +233,10 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @param currencyName Name of the currency
 	 * @return null if invalid, else Material of currency
 	 */
-	public Material getCurrencyMaterial(String currencyName){
+	public MaterialData getCurrencyMaterial(String currencyName){
 		for (Currency c: currencies){
 			if (c.getName().equals(currencyName)){
+				
 				return c.getMaterial();
 			}
 		}
@@ -240,7 +248,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @param oreName Name of the ore
 	 * @return null if invalid, else Material of ore
 	 */
-	public Material getOreMaterial(String oreName){
+	public MaterialData getOreMaterial(String oreName){
 		for (Currency c: ores){
 			if (c.getName().equals(oreName)){
 				return c.getMaterial();
@@ -271,10 +279,8 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @return true if so, false if not
 	 */
 	public boolean isCurrency(ItemStack stack, String currencyName){
-		if (stack.getType().equals(getCurrencyMaterial(currencyName))){
-			if (stack.getData().getData() == getCurrency(currencyName).getMaterialData()){
+		if (stack.getData().equals(getCurrencyMaterial(currencyName))){
 				return true;
-			}
 		}
 		return false;
 	}
@@ -287,7 +293,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 	public boolean isOre(ItemStack stack, String oreName){
 		if (stack.getType().equals(getOreMaterial(oreName))){
-			if (stack.getData().getData() == getOre(oreName).getMaterialData()){
+			if (stack.getData() == getOre(oreName).getMaterial()){
 				return true;
 			}
 		}
@@ -365,7 +371,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @param amount The amount of currency to add
 	 */
 	 public void withdrawCurrency(Inventory inv, Currency currency, int amount){
-	 	
+		System.out.println(currency.getMaterial());
 	 	int j = 0;
 	 	for (ItemStack stack : inv.getContents()){
 			if (stack != null){
@@ -373,27 +379,27 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 					//finish off this stack
 					if (amount + stack.getAmount() <= 64){
 						inv.setItem(j, null);
-						inv.addItem(new ItemStack(stack.getType(), stack.getAmount() + amount, (short) 0, currency.getMaterialData()));
+						inv.addItem(currency.getMaterial().toItemStack(stack.getAmount() + amount));
 						amount = 0;
 					}
 					//add the whole stack and keep going
 					else{
 						amount -= (64 - stack.getAmount());
 						inv.setItem(j, null);
-						inv.addItem(new ItemStack(stack.getType(), 64, (short) 0, currency.getMaterialData()));
+						inv.addItem(currency.getMaterial().toItemStack(64));
 					}
 				}
 			}
 			else{
 				//finish off this stack
 				if (amount <= 64){
-					inv.addItem(new ItemStack(getCurrencyMaterial(currency.getName()), amount, (short) 0, currency.getMaterialData()));
+					inv.addItem(getCurrencyMaterial(currency.getName()).toItemStack(amount));
 					amount = 0;
 				}
 				//add the whole stack and keep going
 				else{
 					amount -= 64;
-					inv.addItem(new ItemStack(getCurrencyMaterial(currency.getName()), 64, (short) 0, currency.getMaterialData()));
+					inv.addItem(getCurrencyMaterial(currency.getName()).toItemStack(64));
 				}
 			}
 			
@@ -563,7 +569,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						
 						stack.setAmount(stack.getAmount() - i);
 						i = 0;
-						inv.setItem(j, new ItemStack(stack.getType(), stack.getAmount(), (short) 0, currency.getMaterialData()));
+						inv.setItem(j, currency.getMaterial().toItemStack(stack.getAmount()));
 						
 					}
 					//remove the whole stack and keep going
@@ -582,7 +588,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						
 						stack.setAmount(stack.getAmount() - i);
 						i = 0;
-						inv.setItem(j, new ItemStack(stack.getType(), stack.getAmount(), (short) 0, currency.getMaterialData()));
+						inv.setItem(j, currency.getMaterial().toItemStack(stack.getAmount()));
 						
 					}
 					//remove the whole stack and keep going
