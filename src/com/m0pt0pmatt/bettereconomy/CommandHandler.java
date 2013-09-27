@@ -163,7 +163,12 @@ public class CommandHandler {
 		 */
 		if(cmd.getName().equalsIgnoreCase("pay")){
 			if (args.length == 2){
-				BetterEconomy.economy.pay(sender, args[0], Double.parseDouble(args[1]));
+				double d;
+				if((d = Double.parseDouble(args[1])) <= 0){
+					sender.sendMessage("Invalid payment amount.");
+					return false;
+				}
+				BetterEconomy.economy.pay(sender, args[0], d);
 				return true;
 			}
 			
