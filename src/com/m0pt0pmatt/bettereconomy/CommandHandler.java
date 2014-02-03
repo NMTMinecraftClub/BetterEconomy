@@ -1,5 +1,7 @@
 package com.m0pt0pmatt.bettereconomy;
 
+import java.util.Iterator;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
@@ -9,6 +11,9 @@ import org.bukkit.entity.Player;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -24,50 +29,69 @@ public class CommandHandler {
 		 * admin wants to create a bank
 		 */
 		if(cmd.getName().equalsIgnoreCase("createBank")){
-			if (args.length == 0){
-				if (!(sender instanceof BlockCommandSender) || !(sender.isOp())){
-					return false;
-				}
-				//get the region manager for the homeworld
-				RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-				if (rm == null){
-					sender.sendMessage("No region manager for the homeworld");
-					return false;
-				}
-				
-				String name = "__Bank";
-				//make sure name isn't already used
-				if (rm.getRegion("__Bank") != null){
-					sender.sendMessage("I'm sorry, but that name is already in use.");
-					return false;
-				}
-				
-				//get the WorldEdit selection
-				Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
-				BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
-				BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
-				
-				//create WorldGuard Region
-				ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-				
-				//set proper flags
-				Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/region flag " + name + " allowed-cmds withdraw,deposit");
-				
-				//add the new region to WorldGuard
-				rm.addRegion(region);
-				
-				//add player to the owner of the new region
-				DefaultDomain newDomain = new DefaultDomain();
-				newDomain.addPlayer("__Server");
-				rm.getRegion(name).setOwners(newDomain);
-				
-				//save WorldGuard
-				try {
-					rm.save();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			if (args.length != 0){
+				sender.sendMessage("wrong number of args");
+				return false;
 			}
+
+			if (!(sender instanceof Player) || !(sender.isOp())){
+				sender.sendMessage("Must be an OP to execute");
+				return false;
+			}
+			//get the region manager for the homeworld
+			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
+			if (rm == null){
+				sender.sendMessage("No region manager for the homeworld");
+				return false;
+			}
+			
+			String name = "__Bank";
+			//make sure name isn't already used
+			if (rm.getRegion("__Bank") != null){
+				sender.sendMessage("I'm sorry, but that name is already in use.");
+				return false;
+			}
+			
+			//get the WorldEdit selection
+			Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
+			BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
+			BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
+			
+			//create WorldGuard Region
+			ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
+			region.setFlag(BetterEconomy.bankFlag, State.ALLOW);
+			
+			//add the new region to WorldGuard
+			rm.addRegion(region);
+			
+			//add player to the owner of the new region
+			DefaultDomain newDomain = new DefaultDomain();
+			newDomain.addPlayer("__Server");
+			rm.getRegion(name).setOwners(newDomain);
+			
+			//save WorldGuard
+			try {
+				rm.save();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			sender.sendMessage("bank created");
+			return true;
+		}
+		
+		
+		//make sure the player is in a bank before executing bank commands
+		if (!(sender instanceof Player)){
+			return false;
+		}
+		
+		Player player = (Player) sender;
+		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
+		ApplicableRegionSet ars = rm.getApplicableRegions(player.getLocation());
+		if (!ars.allows(BetterEconomy.bankFlag)){
+			sender.sendMessage("You must be inside of a bank to execute bank commands");
+			return false;
 		}
 
 		/**

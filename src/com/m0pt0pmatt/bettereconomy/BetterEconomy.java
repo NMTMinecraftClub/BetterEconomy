@@ -20,6 +20,7 @@ import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 
 public class BetterEconomy extends JavaPlugin{
 	
@@ -28,6 +29,8 @@ public class BetterEconomy extends JavaPlugin{
 	public static YamlConfiguration config;
 	public static File configFile;
 
+	public static StateFlag bankFlag = new StateFlag("bank", false);
+	
 	/**
 	 * The WorldGuard hook
 	 */
@@ -105,7 +108,9 @@ public class BetterEconomy extends JavaPlugin{
 		catch (Exception e){
 			getLogger().warning("[HomeWorldPlugin] Unable to register Economy.");
 		}
-		
+
+		//set global flags
+		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/region flag __global__ blocked-cmds withdraw,deposit,wealth");
 		
 		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
 	}

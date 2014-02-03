@@ -1,31 +1,23 @@
 name: BetterEconomy
 main: com.m0pt0pmatt.bettereconomy.BetterEconomy
-version: 0.5
+version: 0.6
+softdepend: [Vault, WorldGuard]
 commands:
     deposit:
         description: Deposit money
-        usage: /deposit currency amount
     withdraw:
         description: Withdraw a physical currency
-        usage: /withdraw currency amount
     wealth:
         description: Displays how much money you are carrying in physical currencies
-        usage: /withdraw
     value:
         description: Displays how much an amount of a certain currency is worth
-        usage: /value (currency) [amount]
     money:
         description: Displays how much money is in your account
-        usage: /money
     setbalance:
         description: Server command. Sets a balance. Creates an account if one does not exist
-        usage: /setbalance player amount
     pay:
         description: Pay a player a certain amount
-        usage: /pay player amount
     top:
         description: See the players with the highest accounts
-        usage: /top number
-    help:
-        description: get help
-        usage: /help
+    createbank:
+        description: Creates a bank.
