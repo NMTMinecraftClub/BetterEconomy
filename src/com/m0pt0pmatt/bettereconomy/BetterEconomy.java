@@ -3,6 +3,7 @@ package com.m0pt0pmatt.bettereconomy;
 import java.io.File;
 import java.io.IOException;
 
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -10,12 +11,15 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class BetterEconomy extends JavaPlugin{
 	
@@ -23,12 +27,25 @@ public class BetterEconomy extends JavaPlugin{
 	public static FileSavingThread savingThread = null;
 	public static YamlConfiguration config;
 	public static File configFile;
+
+	/**
+	 * The WorldGuard hook
+	 */
+	public static WorldGuardPlugin wgplugin = null;
+	
+	/**
+	 * The WorldEdit hook
+	 */
+	public static WorldEditPlugin weplugin = null;
 	
 	/**
 	 * This is ran once the plugin is enabled. It is ran after the constructor.
 	 * loads the houses from a local file.
 	 */
 	public void onEnable(){		
+		
+		weplugin = getWorldEdit();
+		wgplugin = getWorldGuard();
 		
 		//setup config file
 		if (!this.getDataFolder().exists()){
@@ -126,4 +143,33 @@ public class BetterEconomy extends JavaPlugin{
 		economy.load();
 	}
 	
+	/**
+	 * method for WorldGuard to get the WorldGuard Plugin
+	 * @return the WorldGuard Plugin
+	 */
+	public static WorldGuardPlugin getWorldGuard() {
+	    Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldGuard");
+	    
+	    // WorldGuard may not be loaded
+	    if (plugin == null || !(plugin instanceof WorldGuardPlugin)) {
+	    	return null; // Maybe you want throw an exception instead
+	    }
+	    
+	    return (WorldGuardPlugin) plugin;
+	}
+	
+	/**
+	 * method for WorldEdit to get the WorldEdit Plugin
+	 * @return the WorldEdit Plugin
+	 */
+	public static WorldEditPlugin getWorldEdit() {
+	    Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+	 
+	    // WorldGuard may not be loaded
+	    if (plugin == null || !(plugin instanceof WorldEditPlugin)) {
+	        return null; // Maybe you want throw an exception instead
+	    }
+	 
+	    return (WorldEditPlugin) plugin;
+	}
 }
