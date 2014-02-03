@@ -60,6 +60,9 @@ public class CurrencyListener implements Listener{
 	public void onCraft(CraftItemEvent event){
 		
 		for (ItemStack item: event.getInventory().getMatrix()){
+			
+			if (item == null) continue;
+			
 			List<String> lore = item.getItemMeta().getLore();
 			
 			if (lore.contains(ChatColor.RED + "(Not Currency)")){
