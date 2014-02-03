@@ -14,6 +14,7 @@ import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
 import com.m0pt0pmatt.bettereconomy.accounts.Account;
@@ -95,7 +96,6 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		try {
 			BetterEconomy.config.save(BetterEconomy.configFile);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -241,7 +241,17 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		for (Currency c: currencies){
 			if (c.getName().equals(currencyName)){
 				
-				return c.getMaterial();
+				return c.getItem().getData();
+			}
+		}
+		return null;
+	}
+	
+	public ItemMeta getCurrencyMeta(String currencyName){
+		for (Currency c: currencies){
+			if (c.getName().equals(currencyName)){
+				
+				return c.getItem().getItemMeta();
 			}
 		}
 		return null;
@@ -255,7 +265,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	public MaterialData getOreMaterial(String oreName){
 		for (Currency c: ores){
 			if (c.getName().equals(oreName)){
-				return c.getMaterial();
+				return c.getItem().getData();
 			}
 		}
 		return null;
@@ -283,8 +293,17 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @return true if so, false if not
 	 */
 	public boolean isCurrency(ItemStack stack, String currencyName){
-		if (stack.getData().equals(getCurrencyMaterial(currencyName))){
+		if (stack.getData().equals(getCurrencyMaterial(currencyName)) && stack.getItemMeta().equals(getCurrencyMeta(currencyName))){
 				return true;
+		}
+		return false;
+	}
+	
+	public boolean isCurrency(ItemStack next) {
+		for (Currency currency: currencies){
+			if (isCurrency(next, currency.getName())){
+				return true;
+			}
 		}
 		return false;
 	}
@@ -297,7 +316,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 	public boolean isOre(ItemStack stack, String oreName){
 		if (stack.getType().equals(getOreMaterial(oreName))){
-			if (stack.getData() == getOre(oreName).getMaterial()){
+			if (stack.getData().equals(getOre(oreName).getItem().getData())){
 				return true;
 			}
 		}
@@ -375,7 +394,6 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * @param amount The amount of currency to add
 	 */
 	 public void withdrawCurrency(Inventory inv, Currency currency, int amount){
-		System.out.println(currency.getMaterial());
 	 	int j = 0;
 	 	for (ItemStack stack : inv.getContents()){
 			if (stack != null){
@@ -383,14 +401,14 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 					//finish off this stack
 					if (amount + stack.getAmount() <= 64){
 						inv.setItem(j, null);
-						inv.addItem(currency.getMaterial().toItemStack(stack.getAmount() + amount));
+						inv.addItem(currency.getItem().getData().toItemStack(stack.getAmount() + amount));
 						amount = 0;
 					}
 					//add the whole stack and keep going
 					else{
 						amount -= (64 - stack.getAmount());
 						inv.setItem(j, null);
-						inv.addItem(currency.getMaterial().toItemStack(64));
+						inv.addItem(currency.getItem().getData().toItemStack(64));
 					}
 				}
 			}
@@ -573,7 +591,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						
 						stack.setAmount(stack.getAmount() - i);
 						i = 0;
-						inv.setItem(j, currency.getMaterial().toItemStack(stack.getAmount()));
+						inv.setItem(j, currency.getItem().getData().toItemStack(stack.getAmount()));
 						
 					}
 					//remove the whole stack and keep going
@@ -592,7 +610,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						
 						stack.setAmount(stack.getAmount() - i);
 						i = 0;
-						inv.setItem(j, currency.getMaterial().toItemStack(stack.getAmount()));
+						inv.setItem(j, currency.getItem().getData().toItemStack(stack.getAmount()));
 						
 					}
 					//remove the whole stack and keep going
@@ -1013,5 +1031,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	
 	
 }

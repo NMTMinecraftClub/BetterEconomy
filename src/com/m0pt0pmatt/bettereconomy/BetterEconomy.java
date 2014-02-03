@@ -8,11 +8,13 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Dye;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
+import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 
 public class BetterEconomy extends JavaPlugin{
@@ -37,7 +39,6 @@ public class BetterEconomy extends JavaPlugin{
 			try {
 				configFile.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -45,36 +46,40 @@ public class BetterEconomy extends JavaPlugin{
 		
 		//setup economy
 		economy = new EconomyManager(this);
+		
 		//TODO: turn these into a configuration file
-		economy.addCurrency(new Currency("dblock", Material.DIAMOND_BLOCK, 3600));
-		economy.addCurrency(new Currency("gblock", Material.GOLD_BLOCK, 1800));
-		economy.addOre(new Currency("diamond_ore", Material.DIAMOND_ORE, 880));
-		economy.addCurrency(new Currency("diamond", Material.DIAMOND, 400));
-		economy.addCurrency(new Currency("lblock", Material.LAPIS_BLOCK, 315));
-		economy.addCurrency(new Currency("gold",  Material.GOLD_INGOT, 200));
-		economy.addOre(new Currency("gold_ore", Material.GOLD_ORE, 200));
-		economy.addCurrency(new Currency("iblock", Material.IRON_BLOCK, 180));
-		economy.addCurrency(new Currency("rblock", Material.REDSTONE_BLOCK, 135));
-		economy.addCurrency(new Currency("cblock", Material.COAL_BLOCK, 90));
-		economy.addOre(new Currency("lapis_ore", Material.LAPIS_ORE, 77));
+		economy.addCurrency(new Currency("dblock", new ItemStack(Material.DIAMOND_BLOCK), 3600));
+		economy.addCurrency(new Currency("gblock", new ItemStack(Material.GOLD_BLOCK), 1800));
+		economy.addOre(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 880));
+		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 400));
+		economy.addCurrency(new Currency("lblock", new ItemStack(Material.LAPIS_BLOCK), 315));
+		economy.addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200));
+		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
+		economy.addOre(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200));
+		economy.addCurrency(new Currency("iblock", new ItemStack(Material.IRON_BLOCK), 180));
+		economy.addCurrency(new Currency("rblock", new ItemStack(Material.REDSTONE_BLOCK), 135));
+		economy.addCurrency(new Currency("cblock", new ItemStack(Material.COAL_BLOCK), 90));
+		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 77));
 		Dye lapis = new Dye();
 		lapis.setColor(DyeColor.BLUE);
-		economy.addCurrency(new Currency("lapis", lapis, 35));
-		economy.addOre(new Currency("redstone_ore", Material.REDSTONE_ORE, 33));
-		economy.addCurrency(new Currency("iron", Material.IRON_INGOT, 20));
-		economy.addOre(new Currency("iron_ore", Material.IRON_ORE, 20));
-		economy.addOre(new Currency("coal_ore", Material.COAL_ORE, 22));
-		economy.addCurrency(new Currency("redstone", Material.REDSTONE, 15));
-		economy.addCurrency(new Currency("coal", Material.COAL, 10));
+		ItemStack inc = new ItemStack(Material.INK_SACK);
+		inc.setData(lapis);
+		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 35));
+		economy.addOre(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33));
+		economy.addCurrency(new Currency("iron", new ItemStack(Material.IRON_INGOT), 20));
+		economy.addOre(new Currency("iron_ore", new ItemStack(Material.IRON_ORE), 20));
+		economy.addOre(new Currency("coal_ore", new ItemStack(Material.COAL_ORE), 22));
+		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
+		economy.addCurrency(new Currency("coal", new ItemStack(Material.COAL), 10));
 
 		getServer().getPluginManager().registerEvents(new EconomyListener(this), this);
+		getServer().getPluginManager().registerEvents(new CurrencyListener(economy), this);
 		
 		loadAll();
 		
 		//set up the thread that saves data
 		savingThread = new FileSavingThread();
 		savingThread.start();
-		
 		
 		//register the economy
 		try{
