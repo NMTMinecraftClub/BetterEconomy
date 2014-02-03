@@ -16,6 +16,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
+import com.m0pt0pmatt.bettereconomy.accounts.Account;
+import com.m0pt0pmatt.bettereconomy.accounts.InventoryAccount;
+import com.m0pt0pmatt.bettereconomy.currency.Currency;
+
 class BalanceComparator implements Comparator<Account>{
 	   
     public int compare(Account account1, Account account2){

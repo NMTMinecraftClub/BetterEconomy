@@ -12,6 +12,9 @@ import org.bukkit.material.Dye;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.m0pt0pmatt.bettereconomy.currency.Currency;
+import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
+
 public class BetterEconomy extends JavaPlugin{
 	
 	public static EconomyManager economy = null;

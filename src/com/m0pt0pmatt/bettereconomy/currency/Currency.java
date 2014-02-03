@@ -1,4 +1,4 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.currency;
 
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;

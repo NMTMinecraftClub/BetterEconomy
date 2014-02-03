@@ -1,4 +1,4 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.accounts;
 
 import java.io.Serializable;
 

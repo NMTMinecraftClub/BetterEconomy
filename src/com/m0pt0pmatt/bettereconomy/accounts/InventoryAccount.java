@@ -1,4 +1,5 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.accounts;
+
 
 public class InventoryAccount extends Account{
 	

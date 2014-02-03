@@ -1,6 +1,8 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.banks;
 
 import java.util.HashMap;
+
+import com.m0pt0pmatt.bettereconomy.currency.Currency;
 
 public class GlobalBank {
 	

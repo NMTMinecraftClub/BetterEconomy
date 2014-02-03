@@ -9,6 +9,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
+import com.m0pt0pmatt.bettereconomy.accounts.InventoryAccount;
+import com.m0pt0pmatt.bettereconomy.currency.Currency;
+
 /**
  * Listener for economy related events
  * @author Matthew
