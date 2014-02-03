@@ -2,6 +2,7 @@ package com.m0pt0pmatt.bettereconomy.banks;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -46,6 +47,14 @@ public class Bank {
 			amounts.put(BetterEconomy.economy.getCurrency(currency), amount);
 		}
 		
+	}
+	
+	public void save(){
+		ConfigurationSection currenciesSection = config.createSection("currencies");
+		for (Entry<Currency, Integer> entry: amounts.entrySet()){
+			ConfigurationSection currencySection = currenciesSection.createSection(entry.getKey().getName());
+			currencySection.set("amount", entry.getValue());
+		}
 	}
 	
 	/**
