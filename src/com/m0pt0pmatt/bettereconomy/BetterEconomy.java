@@ -88,8 +88,10 @@ public class BetterEconomy extends JavaPlugin{
 		economy.addOre(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33));
 		economy.addCurrency(new Currency("iron", new ItemStack(Material.IRON_INGOT), 20));
 		economy.addOre(new Currency("iron_ore", new ItemStack(Material.IRON_ORE), 20));
+		economy.addOre(new Currency("quartz_ore", new ItemStack(Material.QUARTZ_ORE),20));
 		economy.addOre(new Currency("coal_ore", new ItemStack(Material.COAL_ORE), 22));
 		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
+		economy.addCurrency(new Currency("quartz", new ItemStack(Material.QUARTZ),10));
 		economy.addCurrency(new Currency("coal", new ItemStack(Material.COAL), 10));
 
 		getServer().getPluginManager().registerEvents(new EconomyListener(this), this);

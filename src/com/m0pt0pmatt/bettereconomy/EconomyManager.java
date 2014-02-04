@@ -5,10 +5,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
@@ -17,9 +20,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
+import com.m0pt0pmatt.LandPurchasing.LandPurchasing;
 import com.m0pt0pmatt.bettereconomy.accounts.Account;
 import com.m0pt0pmatt.bettereconomy.accounts.InventoryAccount;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
+import com.sk89q.worldedit.BlockVector;
+import com.sk89q.worldedit.Location;
+import com.sk89q.worldedit.Vector;
+import com.sk89q.worldedit.bukkit.selections.Selection;
+import com.sk89q.worldguard.protection.managers.RegionManager;
 
 class BalanceComparator implements Comparator<Account>{
 	   
@@ -40,7 +49,6 @@ class BalanceComparator implements Comparator<Account>{
         else
             return 0;    
     }
-   
 }
 
 /**
@@ -996,6 +1004,52 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully added "+ amount +" to " + name);
 	}
 
+	/**
+	 * Counts all currencies in a region and prints the result as a percentage
+	 * of all blocks in a selection
+	 * @param sender the player who issued the command that calls this function
+	 */
+	public void evaluateCurrencies(CommandSender sender){
+		
+		Map<Currency,Integer> map = new HashMap<Currency,Integer>();
+		
+		for(Currency c: ores){
+			map.put(c,0);
+		}
+		
+		//get the WorldEdit selection
+		Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
+		BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
+		BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
+		
+		//calculate volume of selection
+		double height = selection.getMaximumPoint().getY() - selection.getMinimumPoint().getY() + 1;
+		double length = selection.getMaximumPoint().getX() - selection.getMinimumPoint().getX() + 1;
+		double width = selection.getMaximumPoint().getZ() - selection.getMinimumPoint().getZ() + 1;
+		double volume = height * length * width;
+		
+		//build the map by checking all blocks in the selection
+		for (int x = b1.getBlockX(); x < b2.getBlockX() + 1; x++){
+			for (int y = b1.getBlockY(); y < b2.getBlockY() + 1; y++){
+				for (int z = b1.getBlockZ(); z < b2.getBlockZ() + 1; z++){
+					Material b = Bukkit.getWorld(selection.getWorld().getName()).getBlockAt(x,y,z).getType();
+
+					for(Currency c: ores){
+						if(c.getItem().getType().equals(b)){
+							map.put(c, map.get(c)+1);
+						}
+					}
+				}
+			}
+		}
+		
+		for(Currency c: ores){
+			sender.sendMessage(c.getName() + ": " + map.get(c) + "/" + volume);
+		}
+		
+		return;
+	}
+	
 	@Override
 	public boolean createPlayerAccount(String arg0, String arg1) {
 		// TODO Auto-generated method stub
