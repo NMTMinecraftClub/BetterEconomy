@@ -15,6 +15,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.m0pt0pmatt.bettereconomy.banks.Bank;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
@@ -35,6 +36,11 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  */
 public class BetterEconomy extends JavaPlugin{
 	
+	/**
+	 * The Bank stores all inventory for the bank storage
+	 */
+	public static Bank bank = null;
+
 	/**
 	 * The EconomyManager handles all economy-based functionality
 	 */
@@ -81,6 +87,7 @@ public class BetterEconomy extends JavaPlugin{
 		
 		//setup economy
 		economy = new EconomyManager(this);
+		bank = new Bank(this,"globalbank.yml");
 		
 		setupCurrencies();
 		
@@ -210,6 +217,7 @@ public class BetterEconomy extends JavaPlugin{
 	 */
 	public static void save() {
 		economy.save();
+		bank.save();
 	}
 	
 	/**
@@ -217,6 +225,7 @@ public class BetterEconomy extends JavaPlugin{
 	 */
 	public static void load(){
 		economy.load();
+		bank.load();
 	}
 	
 	/**
