@@ -17,10 +17,20 @@ import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
+/**
+ * The CommandHandler is the class responsible for handling all commands.
+ * @author Matthew Broomfield, Lucas Stuyvesant
+ *
+ */
 public class CommandHandler {
 	
 	/**
-	 * command handler. handles all commands
+	 * Handle commands send from the BetterEconomy plugin
+	 * @param sender the CommandSender of the command
+	 * @param cmd the Command being executed
+	 * @param label 
+	 * @param args the arguments sent with the command
+	 * @return true if a command was executed successfully, false otherwise
 	 */
 	public static boolean commands(CommandSender sender, Command cmd, String label, String[] args){
 		
