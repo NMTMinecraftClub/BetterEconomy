@@ -10,18 +10,36 @@ import com.m0pt0pmatt.bettereconomy.BetterEconomy;
  */
 public class FileSavingThread extends Thread implements Listener{
 	
+	public boolean die = false;
+	private boolean isRunning = true;
+	public final long sleepTime = 1000 * 60 * 15; //15 minutes
+	
 	@Override
 	public void run(){
-
-		while(true){
+		while(!die){
+			
+			long wait = 0;
+			
+			while (wait < sleepTime){
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				if (die){
+					isRunning = false;
+					return;
+				}
+				wait += 3000;
+			}
+			
 			//save everything
 			BetterEconomy.save();
-			try {
-				Thread.sleep(1000 * 60 * 15);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-
 		}
+		
+	}
+	
+	public boolean isRunning(){
+		return isRunning;
 	}
 }

@@ -77,10 +77,10 @@ public class BetterEconomy extends JavaPlugin{
 		weplugin = getWorldEdit();
 		wgplugin = getWorldGuard();
 		
+		setupConfigFile();
+		
 		//setup economy
 		economy = new EconomyManager(this);
-		
-		setupConfigFile();
 		
 		setupCurrencies();
 		
@@ -91,8 +91,10 @@ public class BetterEconomy extends JavaPlugin{
 		load();
 		
 		//set up the thread that saves data
-		savingThread = new FileSavingThread();
-		savingThread.start();
+		if (savingThread == null){
+			savingThread = new FileSavingThread();
+			savingThread.start();
+		}
 		
 		//register the economy
 		try{
@@ -129,6 +131,8 @@ public class BetterEconomy extends JavaPlugin{
 		}
 		
 		config = YamlConfiguration.loadConfiguration(configFile);
+		
+		this.getLogger().info("Economy config file ready to go.");
 		
 	}
 
@@ -189,6 +193,7 @@ public class BetterEconomy extends JavaPlugin{
 	 * Saves player accounts when the plugin is being disabled.
 	 */
 	public void onDisable(){
+		savingThread.die = true;
 		save();
 		getLogger().info("BetterEconomy has been disabled.");
 	}

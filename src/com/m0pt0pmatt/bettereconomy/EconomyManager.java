@@ -77,9 +77,6 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		currencies = new HashSet<Currency>();
 		ores = new HashSet<Currency>();
 		accounts = new LinkedList<InventoryAccount>();
-		
-		//load accounts from file
-		load();
 	}
 	
 	/**
