@@ -15,7 +15,7 @@ public class FileSavingThread extends Thread implements Listener{
 
 		while(true){
 			//save everything
-			BetterEconomy.saveAll();
+			BetterEconomy.save();
 			try {
 				Thread.sleep(1000 * 60 * 15);
 			} catch (InterruptedException e) {

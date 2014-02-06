@@ -1080,6 +1080,14 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	public void clearCurrencies(){
+		currencies.clear();
+	}
+	
+	public void clearCurrencyOres(){
+		ores.clear();
+	}
 
 	
 	

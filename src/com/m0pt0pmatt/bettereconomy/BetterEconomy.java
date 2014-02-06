@@ -65,63 +65,30 @@ public class BetterEconomy extends JavaPlugin{
 	 */
 	public static WorldEditPlugin weplugin = null;
 	
+	
+	
 	/**
 	 * This is ran once the plugin is enabled. It is ran after the constructor.
 	 * loads the houses from a local file.
 	 */
 	public void onEnable(){		
 		
+		//hook into worldedit and worldguard
 		weplugin = getWorldEdit();
 		wgplugin = getWorldGuard();
-		
-		//setup config file
-		if (!this.getDataFolder().exists()){
-			this.getDataFolder().mkdir();
-		}
-		configFile = new File(this.getDataFolder(), "accounts.yml");
-		if (!configFile.exists()){
-			try {
-				configFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		config = YamlConfiguration.loadConfiguration(configFile);
 		
 		//setup economy
 		economy = new EconomyManager(this);
 		
-		//TODO: turn these into a configuration file
-		economy.addCurrency(new Currency("dblock", new ItemStack(Material.DIAMOND_BLOCK), 3600));
-		economy.addCurrency(new Currency("gblock", new ItemStack(Material.GOLD_BLOCK), 1800));
-		economy.addOre(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 880));
-		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 400));
-		economy.addCurrency(new Currency("lblock", new ItemStack(Material.LAPIS_BLOCK), 315));
-		economy.addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200));
-		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
-		economy.addOre(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200));
-		economy.addCurrency(new Currency("iblock", new ItemStack(Material.IRON_BLOCK), 180));
-		economy.addCurrency(new Currency("rblock", new ItemStack(Material.REDSTONE_BLOCK), 135));
-		economy.addCurrency(new Currency("cblock", new ItemStack(Material.COAL_BLOCK), 90));
-		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 77));
-		Dye lapis = new Dye();
-		lapis.setColor(DyeColor.BLUE);
-		ItemStack inc = new ItemStack(Material.INK_SACK);
-		inc.setData(lapis);
-		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 35));
-		economy.addOre(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33));
-		economy.addCurrency(new Currency("iron", new ItemStack(Material.IRON_INGOT), 20));
-		economy.addOre(new Currency("iron_ore", new ItemStack(Material.IRON_ORE), 20));
-		economy.addOre(new Currency("quartz_ore", new ItemStack(Material.QUARTZ_ORE),20));
-		economy.addOre(new Currency("coal_ore", new ItemStack(Material.COAL_ORE), 22));
-		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
-		economy.addCurrency(new Currency("quartz", new ItemStack(Material.QUARTZ),10));
-		economy.addCurrency(new Currency("coal", new ItemStack(Material.COAL), 10));
-
+		setupConfigFile();
+		
+		setupCurrencies();
+		
+		//Register Listeners
 		getServer().getPluginManager().registerEvents(new EconomyListener(this), this);
 		getServer().getPluginManager().registerEvents(new CurrencyListener(economy), this);
 		
-		loadAll();
+		load();
 		
 		//set up the thread that saves data
 		savingThread = new FileSavingThread();
@@ -142,35 +109,108 @@ public class BetterEconomy extends JavaPlugin{
 	}
  
 	/**
-	 * ran when the plugin is being disabled. saves the houses to file.
+	 * Sets up the main configuration file for saving player accounts
+	 */
+	private void setupConfigFile() {
+		
+		//setup config file
+		if (!this.getDataFolder().exists()){
+			this.getDataFolder().mkdir();
+		}
+		
+		configFile = new File(this.getDataFolder(), "accounts.yml");
+		
+		if (!configFile.exists()){
+			try {
+				configFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		config = YamlConfiguration.loadConfiguration(configFile);
+		
+	}
+
+	/**
+	 * Sets up the known physical currencies for the economy.
+	 * Normal currencies are added via economy.addCurrency
+	 * Ores are not tradable, but they still need to be removed from player inventories
+	 * for special cases, like deducting certain values from a player (Wilderness)
+	 */
+	private void setupCurrencies() {
+		
+		//clear existing currencies
+		economy.clearCurrencies();
+		economy.clearCurrencyOres();
+		
+		//add coal
+		economy.addCurrency(new Currency("coal", new ItemStack(Material.COAL), 10));
+		economy.addCurrency(new Currency("coal_block", new ItemStack(Material.COAL_BLOCK), 90));
+		economy.addOre(new Currency("coal_ore", new ItemStack(Material.COAL_ORE), 22));
+		
+		//add iron
+		economy.addCurrency(new Currency("iron", new ItemStack(Material.IRON_INGOT), 20));
+		economy.addCurrency(new Currency("iron_block", new ItemStack(Material.IRON_BLOCK), 180));
+		economy.addOre(new Currency("iron_ore", new ItemStack(Material.IRON_ORE), 20));
+		
+		//add gold
+		economy.addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200));
+		economy.addCurrency(new Currency("gold_block", new ItemStack(Material.GOLD_BLOCK), 1800));
+		economy.addOre(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200));
+		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
+		
+		//add diamond
+		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 400));
+		economy.addCurrency(new Currency("diamond_block", new ItemStack(Material.DIAMOND_BLOCK), 3600));
+		economy.addOre(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 880));
+		
+		//add lapis
+		Dye lapis = new Dye();
+		lapis.setColor(DyeColor.BLUE);
+		ItemStack inc = new ItemStack(Material.INK_SACK);
+		inc.setData(lapis);
+		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 35));
+		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 315));
+		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 77));
+		
+		//add redstone
+		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
+		economy.addCurrency(new Currency("redstone_block", new ItemStack(Material.REDSTONE_BLOCK), 135));
+		economy.addOre(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33));
+		
+		//add quartz
+		economy.addCurrency(new Currency("quartz", new ItemStack(Material.QUARTZ),10));
+		economy.addOre(new Currency("quartz_ore", new ItemStack(Material.QUARTZ_ORE),20));
+		
+	}
+
+	/**
+	 * Saves player accounts when the plugin is being disabled.
 	 */
 	public void onDisable(){
-		saveAll();
-		
-		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been disbled.");
+		save();
+		getLogger().info("BetterEconomy has been disabled.");
 	}
 	
 	/**
-	 * Reload method. Makes sure all data is saved to file.
-	 */
-	public void onReload(){
-		saveAll();
-		loadAll();
-		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been reloaded.");
-	}
-	
-	/**
-	 * commands are handled by CommandHandler
+	 * Sends commands to the CommandHandler to be dealt with.
 	 */
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		return CommandHandler.commands(sender, cmd, label, args);
 	}
 	
-	public static void saveAll() {
+	/**
+	 * Saves everything.
+	 */
+	public static void save() {
 		economy.save();
 	}
 	
-	public static void loadAll(){
+	/**
+	 * Loads everything.
+	 */
+	public static void load(){
 		economy.load();
 	}
 	
