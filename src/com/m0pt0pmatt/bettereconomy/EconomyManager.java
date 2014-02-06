@@ -3,9 +3,11 @@ package com.m0pt0pmatt.bettereconomy;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.milkbowl.vault.economy.EconomyResponse;
 
@@ -28,11 +30,6 @@ import com.sk89q.worldedit.bukkit.selections.Selection;
 class BalanceComparator implements Comparator<Account>{
 	   
     public int compare(Account account1, Account account2){
-   
-        /*
-         * parameter are of type Object, so we have to downcast it
-         * to Employee objects
-         */
        
         double emp1Balance = account1.getBalance();        
         double emp2Balance = account2.getBalance();
@@ -55,12 +52,12 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	/**
 	 * Lists of all currently loaded currencies
 	 */
-	private List<Currency> currencies;
+	private Set<Currency> currencies;
 	
 	/**
 	 * List of currencies not used in trade, but in enderchest penalties
 	 */
-	private List<Currency> ores;
+	private Set<Currency> ores;
 	
 	/**
 	 * List of all currently loaded accounts
@@ -77,8 +74,8 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 */
 	public EconomyManager(BetterEconomy plugin){
 		//create a list for currencies
-		currencies = new LinkedList<Currency>();
-		ores = new LinkedList<Currency>();
+		currencies = new HashSet<Currency>();
+		ores = new HashSet<Currency>();
 		accounts = new LinkedList<InventoryAccount>();
 		
 		//load accounts from file
@@ -167,7 +164,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * Returns the list of currencies
 	 * @return the list of currencies
 	 */
-	public List<Currency> getCurrencies(){
+	public Set<Currency> getCurrencies(){
 		return currencies;
 	}
 	
@@ -175,7 +172,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	 * Returns the list of ores
 	 * @return the list of ores
 	 */
-	public List<Currency> getOres() {
+	public Set<Currency> getOres() {
 		return ores;
 	}
 

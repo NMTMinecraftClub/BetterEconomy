@@ -14,7 +14,7 @@ import com.m0pt0pmatt.bettereconomy.currency.Currency;
 
 /**
  * Listener for economy related events
- * @author Matthew
+ * @author Matthew Broomfield
  *
  */
 public class EconomyListener implements Listener{
@@ -29,9 +29,8 @@ public class EconomyListener implements Listener{
 	 */
 	public EconomyListener(BetterEconomy plugin){
 		
-		//try to grab the EconomyManager
+		//grab the EconomyManager
 		this.economy = BetterEconomy.economy;
-		
 	}
 	
 	/**
