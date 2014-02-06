@@ -6,10 +6,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.flags.EconomyFlag;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
@@ -75,7 +77,7 @@ public class CommandHandler {
 			
 			//create WorldGuard Region
 			ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-			region.setFlag(BetterEconomy.bankFlag, State.ALLOW);
+			region.setFlag((StateFlag)EconomyFlag.BANKFLAG.getFlag(), State.ALLOW);
 			
 			//add the new region to WorldGuard
 			rm.addRegion(region);
@@ -104,7 +106,7 @@ public class CommandHandler {
 		Player player = (Player) sender;
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
 		ApplicableRegionSet ars = rm.getApplicableRegions(player.getLocation());
-		if (!ars.allows(BetterEconomy.bankFlag)){
+		if (!ars.allows((StateFlag) EconomyFlag.BANKFLAG.getFlag())){
 			sender.sendMessage("You must be inside of a bank to execute bank commands");
 			return false;
 		}

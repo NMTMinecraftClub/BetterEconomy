@@ -11,7 +11,6 @@ import net.milkbowl.vault.economy.EconomyResponse;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
@@ -20,15 +19,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
-import com.m0pt0pmatt.LandPurchasing.LandPurchasing;
 import com.m0pt0pmatt.bettereconomy.accounts.Account;
 import com.m0pt0pmatt.bettereconomy.accounts.InventoryAccount;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.Location;
-import com.sk89q.worldedit.Vector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
-import com.sk89q.worldguard.protection.managers.RegionManager;
 
 class BalanceComparator implements Comparator<Account>{
 	   

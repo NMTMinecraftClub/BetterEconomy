@@ -20,16 +20,40 @@ import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.StateFlag;
 
+/**
+ * BetterEconomy is an economy plugin which is suited for the specific needs
+ * of the NMT Minecraft Club.
+ * 
+ * In BetterEconomy, physical currencies are assigned dollar values.
+ * These currencies can be exchanged for their respective values
+ * at banks. Banks, however, cannot "magically" exchange different physical
+ * currencies. A.K.A: no items are created or deleted, only naturally generated
+ * 
+ * @author Matthew Broomfield, Lucas Stuyvesant
+ *
+ */
 public class BetterEconomy extends JavaPlugin{
 	
+	/**
+	 * The EconomyManager handles all economy-based functionality
+	 */
 	public static EconomyManager economy = null;
+	
+	/**
+	 * A simple thread which saves data to file every couple of minutes
+	 */
 	public static FileSavingThread savingThread = null;
+	
+	/**
+	 * The base configuration file for BetterEconomy
+	 */
 	public static YamlConfiguration config;
+	
+	/**
+	 * The actual File object of the base config file.
+	 */
 	public static File configFile;
-
-	public static StateFlag bankFlag = new StateFlag("bank", false);
 	
 	/**
 	 * The WorldGuard hook
