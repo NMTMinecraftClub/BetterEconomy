@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -27,6 +28,8 @@ public class CurrencyListener implements Listener{
 
 	@EventHandler(priority = EventPriority.LOWEST)
 	public void onMobDeath(EntityDeathEvent event){
+		
+		if (event.getEntityType().equals(EntityType.PLAYER)) return;
 		
 		List<ItemStack> drops = event.getDrops();
 		if (drops == null) return;
