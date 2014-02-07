@@ -408,7 +408,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 					if (amount + k <= 64){
 						inv.setItem(j, null);
 						inv.addItem(currency.getItem().getData().toItemStack(k + amount));
-						BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - k);
+						BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - amount);
 						amount = 0;
 					}
 					//add the whole stack and keep going
@@ -416,7 +416,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						amount -= (64 - k);
 						inv.setItem(j, null);
 						inv.addItem(currency.getItem().getData().toItemStack(64));
-						BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - k);
+						BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - (64 - k));
 					}
 				}
 			}
@@ -424,14 +424,14 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 				//finish off this stack
 				if (amount <= 64){
 					inv.addItem(getCurrencyMaterial(currency.getName()).toItemStack(amount));
-					BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - k);
+					BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - amount);
 					amount = 0;
 				}
 				//add the whole stack and keep going
 				else{
 					amount -= 64;
 					inv.addItem(getCurrencyMaterial(currency.getName()).toItemStack(64));
-					BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - k);
+					BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) - 64);
 				}
 			}
 			
@@ -610,15 +610,14 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 				if (isCurrency(stack, currency.getName())){
 					//finish off this stack
 					if (i < k){
-						
 						stack.setAmount(k - i);
 						i = 0;
 						inv.setItem(j, currency.getItem().getData().toItemStack(stack.getAmount()));
-						BetterEconomy.bank.updateAmount(currency, k + BetterEconomy.bank.getCurrencyAmount(currency));
+						BetterEconomy.bank.updateAmount(currency, amount + BetterEconomy.bank.getCurrencyAmount(currency));
 					}
 					//remove the whole stack and keep going
 					else{
-						i -= stack.getAmount();
+						i -= k;
 						inv.setItem(j, null);
 						BetterEconomy.bank.updateAmount(currency, k + BetterEconomy.bank.getCurrencyAmount(currency));
 					}
@@ -634,7 +633,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 						stack.setAmount(k - i);
 						i = 0;
 						inv.setItem(j, currency.getItem().getData().toItemStack(stack.getAmount()));
-						BetterEconomy.bank.updateAmount(currency, k + BetterEconomy.bank.getCurrencyAmount(currency));
+						BetterEconomy.bank.updateAmount(currency, amount + BetterEconomy.bank.getCurrencyAmount(currency));
 					}
 					//remove the whole stack and keep going
 					else{
