@@ -1,5 +1,6 @@
 package com.m0pt0pmatt.bettereconomy;
 
+import java.util.HashMap;
 import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
@@ -8,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
@@ -150,6 +152,13 @@ public class CommandHandler {
 			if (args.length == 1){
 				if (args[0].equalsIgnoreCase("current")){
 					BetterEconomy.economy.calculateWealth(sender);
+					return true;
+				}
+				else if (args[0].equalsIgnoreCase("bank")){
+					HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
+					for(Currency c: BetterEconomy.economy.getCurrencies()){
+						sender.sendMessage(c.getName() + ": " + map.get(c));
+					}
 					return true;
 				}
 				else{
