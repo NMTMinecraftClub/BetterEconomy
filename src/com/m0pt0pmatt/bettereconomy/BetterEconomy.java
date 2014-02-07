@@ -186,9 +186,9 @@ public class BetterEconomy extends JavaPlugin{
 		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
 		
 		//add diamond
-		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 400));
-		economy.addCurrency(new Currency("diamond_block", new ItemStack(Material.DIAMOND_BLOCK), 3600));
-		economy.addOre(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 880));
+		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 500));
+		economy.addCurrency(new Currency("diamond_block", new ItemStack(Material.DIAMOND_BLOCK), 4500));
+		economy.addOre(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 1100));
 		
 		//add lapis
 		Dye lapis = new Dye();
@@ -205,8 +205,8 @@ public class BetterEconomy extends JavaPlugin{
 		economy.addOre(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33));
 		
 		//add quartz
-		economy.addCurrency(new Currency("quartz", new ItemStack(Material.QUARTZ),10));
-		economy.addOre(new Currency("quartz_ore", new ItemStack(Material.QUARTZ_ORE),20));
+		economy.addCurrency(new Currency("quartz", new ItemStack(Material.QUARTZ),25));
+		economy.addOre(new Currency("quartz_ore", new ItemStack(Material.QUARTZ_ORE),55));
 		
 	}
 

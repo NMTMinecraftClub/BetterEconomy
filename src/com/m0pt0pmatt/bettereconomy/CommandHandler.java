@@ -39,6 +39,19 @@ public class CommandHandler {
 	public static boolean commands(CommandSender sender, Command cmd, String label, String[] args){
 		
 		/**
+		 * server wants to set a players balance
+		 */
+		if(cmd.getName().equalsIgnoreCase("setbalance")){
+			if (args.length == 2){
+				BetterEconomy.economy.setBalance(sender, args[0], Double.parseDouble(args[1]));
+				return true;
+			}
+			
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
+		}
+		
+		/**
 		 * admin wants to evaluate the economy (currencies)
 		 */
 		if(cmd.getName().equalsIgnoreCase("evaluateEconomy")){
@@ -295,21 +308,6 @@ public class CommandHandler {
 				return false;
 			}
 		}
-		
-		/**
-		 * server wants to set a players balance
-		 */
-		if(cmd.getName().equalsIgnoreCase("setbalance")){
-			if (args.length == 2){
-				BetterEconomy.economy.setBalance(sender, args[0], Double.parseDouble(args[1]));
-				return true;
-			}
-			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}
-		
-			
 		
 		return false;
 	}

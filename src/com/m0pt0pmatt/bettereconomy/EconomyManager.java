@@ -14,6 +14,7 @@ import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -826,7 +827,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 	public void setBalance(CommandSender server, String player, double amount) {
 
 		//make sure its the server
-		if (server instanceof Player){
+		if (!(server instanceof ConsoleCommandSender)){
 			server.sendMessage("Sorry, only the server can execute this command");
 			return;
 		}
@@ -1059,6 +1060,7 @@ public class EconomyManager implements net.milkbowl.vault.economy.Economy {
 		}
 		
 		for(Currency c: ores){
+			System.out.println(c.getName() + ": " + map.get(c) + "/" + volume);
 			sender.sendMessage(c.getName() + ": " + map.get(c) + "/" + volume);
 		}
 		
