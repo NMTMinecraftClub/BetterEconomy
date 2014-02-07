@@ -170,7 +170,9 @@ public class CommandHandler {
 				else if (args[0].equalsIgnoreCase("bank")){
 					HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
 					for(Currency c: BetterEconomy.economy.getCurrencies()){
-						sender.sendMessage(c.getName() + ": " + map.get(c));
+						int value = 0;
+						if (map.get(c) != null) value = map.get(c);
+						sender.sendMessage(c.getName() + ": " + value);
 					}
 					return true;
 				}
