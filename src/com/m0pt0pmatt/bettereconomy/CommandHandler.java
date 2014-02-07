@@ -1,17 +1,19 @@
 package com.m0pt0pmatt.bettereconomy;
 
+import java.util.Map.Entry;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.m0pt0pmatt.bettereconomy.flags.EconomyFlag;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
@@ -66,6 +68,7 @@ public class CommandHandler {
 				sender.sendMessage("Must be an OP to execute");
 				return false;
 			}
+			
 			//get the region manager for the homeworld
 			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
 			if (rm == null){
@@ -87,7 +90,8 @@ public class CommandHandler {
 			
 			//create WorldGuard Region
 			ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-			region.setFlag((StateFlag)EconomyFlag.BANKFLAG.getFlag(), State.ALLOW);
+			region.setFlag(BetterEconomy.isBank, State.ALLOW);
+			region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank");
 			
 			//add the new region to WorldGuard
 			rm.addRegion(region);
@@ -108,18 +112,91 @@ public class CommandHandler {
 			return true;
 		}
 		
+		/**
+		 * player wants to give another player a certain amount
+		 */
+		if(cmd.getName().equalsIgnoreCase("pay")){
+			if (args.length == 2){
+				double d;
+				if((d = Double.parseDouble(args[1])) <= 0){
+					sender.sendMessage("Invalid payment amount.");
+					return false;
+				}
+				BetterEconomy.economy.pay(sender, args[0], d);
+				return true;
+			}
+			
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
+		}
+		
+		/**
+		 * player wants to see the top accounts on the server
+		 */
+		if(cmd.getName().equalsIgnoreCase("top")){
+			if (args.length == 1){
+				BetterEconomy.economy.top(sender, Integer.parseInt(args[0]));
+				return true;
+			}
+			
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
+		}
+		
+		/**
+		 * player wanted to check the value of something
+		 */
+		if(cmd.getName().equalsIgnoreCase("value")){
+			if (args.length == 1){
+				if (args[0].equalsIgnoreCase("current")){
+					BetterEconomy.economy.calculateWealth(sender);
+					return true;
+				}
+				else{
+					BetterEconomy.economy.checkValue(sender, args[0], 1);
+					return true;
+				}			
+			}
+			if (args.length == 2){
+				
+				BetterEconomy.economy.checkValue(sender, args[0], Integer.parseInt(args[1]));
+				return true;
+			}
+			
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
+		}
+		
+		/**
+		 * player wants to check their balance
+		 */
+		if(cmd.getName().equalsIgnoreCase("money")){
+			if (args.length == 0){
+				BetterEconomy.economy.showBalance(sender);
+				return true;
+			}
+			
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
+		}
+		
+		
 		//make sure the player is in a bank before executing bank commands
 		if (!(sender instanceof Player)){
 			return false;
 		}
 		
+		
+		
 		Player player = (Player) sender;
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
 		ApplicableRegionSet ars = rm.getApplicableRegions(player.getLocation());
-		if (!ars.allows((StateFlag) EconomyFlag.BANKFLAG.getFlag())){
-			sender.sendMessage("You must be inside of a bank to execute bank commands");
+		
+		if (!ars.allows(BetterEconomy.isBank)){
+			sender.sendMessage("You must be inside of a bank to execute the command /" + cmd.getName());
 			return false;
 		}
+		
 
 		/**
 		 * player wants to deposit money
@@ -211,50 +288,6 @@ public class CommandHandler {
 		}
 		
 		/**
-		 * player wants to see how much wealth they are carrying
-		 */
-		if(cmd.getName().equalsIgnoreCase("wealth")){
-			if (args.length != 0){
-				sender.sendMessage("Wrong number of arguments.");
-				return false;
-			}
-			else{
-				BetterEconomy.economy.calculateWealth(sender);
-			}
-			return true;
-		}
-		
-		/**
-		 * player wanted to check the value of something
-		 */
-		if(cmd.getName().equalsIgnoreCase("value")){
-			if (args.length == 1){
-				BetterEconomy.economy.checkValue(sender, args[0], 1);
-				return true;
-			}
-			if (args.length == 2){
-				BetterEconomy.economy.checkValue(sender, args[0], Integer.parseInt(args[1]));
-				return true;
-			}
-			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}
-		
-		/**
-		 * player wants to check their balance
-		 */
-		if(cmd.getName().equalsIgnoreCase("money")){
-			if (args.length == 0){
-				BetterEconomy.economy.showBalance(sender);
-				return true;
-			}
-			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}
-		
-		/**
 		 * server wants to set a players balance
 		 */
 		if(cmd.getName().equalsIgnoreCase("setbalance")){
@@ -267,36 +300,7 @@ public class CommandHandler {
 			return false;
 		}
 		
-		/**
-		 * player wants to give another player a certain amount
-		 */
-		if(cmd.getName().equalsIgnoreCase("pay")){
-			if (args.length == 2){
-				double d;
-				if((d = Double.parseDouble(args[1])) <= 0){
-					sender.sendMessage("Invalid payment amount.");
-					return false;
-				}
-				BetterEconomy.economy.pay(sender, args[0], d);
-				return true;
-			}
 			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}
-		
-		/**
-		 * player wants to see the top accounts on the server
-		 */
-		if(cmd.getName().equalsIgnoreCase("top")){
-			if (args.length == 1){
-				BetterEconomy.economy.top(sender, Integer.parseInt(args[0]));
-				return true;
-			}
-			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}	
 		
 		return false;
 	}

@@ -49,6 +49,9 @@ public class CurrencyListener implements Listener{
 	public void onRedstonePlace(PlayerInteractEvent event){
 		
 		ItemStack item = event.getItem();
+		
+		if (item == null) return;
+		
 		List<String> lore = item.getItemMeta().getLore();
 		if (item.getType().equals(Material.REDSTONE) && lore.contains(ChatColor.RED + "(Not Currency)")){
 			event.setCancelled(true);

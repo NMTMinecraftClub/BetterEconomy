@@ -1,6 +1,5 @@
 package com.m0pt0pmatt.bettereconomy.flags;
 
-import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 
 /**
@@ -8,18 +7,8 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
  * @author Matthew
  *
  */
-public enum EconomyFlag {
+public class EconomyFlag {
 
-	BANKFLAG( new StateFlag("bank", false));
 	
-	private Flag<?> flag;
-	
-	private EconomyFlag(Flag<?> flag){
-		this.flag = flag;
-	}
-	
-	public Flag<?> getFlag(){
-		return flag;
-	}
 	
 }

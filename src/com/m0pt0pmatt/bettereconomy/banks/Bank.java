@@ -1,6 +1,7 @@
 package com.m0pt0pmatt.bettereconomy.banks;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -26,14 +27,13 @@ public class Bank {
 	private YamlConfiguration config;
 	
 	public Bank(BetterEconomy plugin, String configName){
-		this.amounts = new HashMap<Currency,Integer>();
-		
+		amounts = new HashMap<Currency,Integer>();
 		configFile = new File(plugin.getDataFolder(), configName);	
-		config = YamlConfiguration.loadConfiguration(configFile);
 		load();
 	}
 	
 	public void load(){
+		config = YamlConfiguration.loadConfiguration(configFile);
 		ConfigurationSection currenciesSection = config.getConfigurationSection("currencies");
 		if (currenciesSection == null){
 			return;
@@ -54,6 +54,12 @@ public class Bank {
 		for (Entry<Currency, Integer> entry: amounts.entrySet()){
 			ConfigurationSection currencySection = currenciesSection.createSection(entry.getKey().getName());
 			currencySection.set("amount", entry.getValue());
+		}
+		try {
+			config.save(configFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
@@ -76,8 +82,14 @@ public class Bank {
 	 * @param c currency whose amount is desired
 	 * @return amount of a currency in the bank, null if currency is not in the bank
 	 */
-	public Integer getCurrencyAmount(Currency c){
-		return amounts.get(c);
+	public int getCurrencyAmount(Currency c){
+		
+		if (amounts.containsKey(c)){
+			return amounts.get(c);
+		}
+		
+		return 0;
+		
 	}
 	
 	/**

@@ -14,6 +14,9 @@ public class Currency {
 	 */
 	private String name;
 	
+	/**
+	 * The physical representative for the currency
+	 */
 	private ItemStack item;
 	
 	/**

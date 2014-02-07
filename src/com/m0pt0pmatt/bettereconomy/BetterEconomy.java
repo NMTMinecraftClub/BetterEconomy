@@ -21,6 +21,10 @@ import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * BetterEconomy is an economy plugin which is suited for the specific needs
@@ -71,7 +75,7 @@ public class BetterEconomy extends JavaPlugin{
 	 */
 	public static WorldEditPlugin weplugin = null;
 	
-	
+	public static StateFlag isBank = new StateFlag("can-bank", false);
 	
 	/**
 	 * This is ran once the plugin is enabled. It is ran after the constructor.
@@ -87,13 +91,14 @@ public class BetterEconomy extends JavaPlugin{
 		
 		//setup economy
 		economy = new EconomyManager(this);
-		bank = new Bank(this,"globalbank.yml");
 		
 		setupCurrencies();
 		
 		//Register Listeners
 		getServer().getPluginManager().registerEvents(new EconomyListener(this), this);
 		getServer().getPluginManager().registerEvents(new CurrencyListener(economy), this);
+		
+		bank = new Bank(this,"globalbank.yml");
 		
 		load();
 		
@@ -113,6 +118,15 @@ public class BetterEconomy extends JavaPlugin{
 
 		//set global flags
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/region flag __global__ blocked-cmds withdraw,deposit,wealth");
+		
+		//the worst fix ever
+		//get the region manager for the homeworld
+		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
+		ProtectedRegion region = rm.getRegion("__bank");
+		if (region != null){
+			region.setFlag(BetterEconomy.isBank, State.ALLOW);
+		}
+		
 		
 		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
 	}
