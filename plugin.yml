@@ -21,3 +21,5 @@ commands:
         description: See the players with the highest accounts
     createbank:
         description: Creates a bank.
+    evaluateeconomy:
+    	description: evaluates currency (ore) distribution over a selection
