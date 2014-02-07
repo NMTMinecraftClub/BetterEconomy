@@ -66,6 +66,8 @@ public class CurrencyListener implements Listener{
 			
 			if (item == null) continue;
 			
+			if (item.getItemMeta() == null) continue;
+			
 			List<String> lore = item.getItemMeta().getLore();
 			
 			if (lore == null) continue;
