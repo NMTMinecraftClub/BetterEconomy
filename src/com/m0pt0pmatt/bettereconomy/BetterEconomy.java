@@ -183,7 +183,7 @@ public class BetterEconomy extends JavaPlugin{
 		economy.addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200));
 		economy.addCurrency(new Currency("gold_block", new ItemStack(Material.GOLD_BLOCK), 1800));
 		economy.addOre(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200));
-		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
+//		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
 		
 		//add diamond
 		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 500));
@@ -195,9 +195,9 @@ public class BetterEconomy extends JavaPlugin{
 		lapis.setColor(DyeColor.BLUE);
 		ItemStack inc = new ItemStack(Material.INK_SACK);
 		inc.setData(lapis);
-		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 35));
-		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 315));
-		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 77));
+		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 55));
+		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495));
+		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 120));
 		
 		//add redstone
 		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
