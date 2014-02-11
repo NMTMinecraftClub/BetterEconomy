@@ -183,7 +183,7 @@ public class BetterEconomy extends JavaPlugin{
 		economy.addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200));
 		economy.addCurrency(new Currency("gold_block", new ItemStack(Material.GOLD_BLOCK), 1800));
 		economy.addOre(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200));
-//		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
+		economy.addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9)));
 		
 		//add diamond
 		economy.addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 500));
