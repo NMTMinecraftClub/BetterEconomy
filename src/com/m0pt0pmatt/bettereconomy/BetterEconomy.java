@@ -197,7 +197,7 @@ public class BetterEconomy extends JavaPlugin{
 		inc.setData(lapis);
 		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 55));
 		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495));
-		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 121));
+		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 120));
 		
 		//add redstone
 		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
