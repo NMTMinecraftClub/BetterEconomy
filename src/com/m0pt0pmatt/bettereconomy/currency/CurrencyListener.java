@@ -56,6 +56,9 @@ public class CurrencyListener implements Listener{
 		if (item == null) return;
 		
 		List<String> lore = item.getItemMeta().getLore();
+		
+		if (lore == null) return;
+		
 		if (item.getType().equals(Material.REDSTONE) && lore.contains(ChatColor.RED + "(Not Currency)")){
 			event.setCancelled(true);
 		}

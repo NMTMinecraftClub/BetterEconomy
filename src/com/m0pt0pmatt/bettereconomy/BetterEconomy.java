@@ -195,9 +195,9 @@ public class BetterEconomy extends JavaPlugin{
 		lapis.setColor(DyeColor.BLUE);
 		ItemStack inc = new ItemStack(Material.INK_SACK);
 		inc.setData(lapis);
-		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 35));
-		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 315));
-		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 77));
+		economy.addCurrency(new Currency("lapis", new ItemStack(inc), 55));
+		economy.addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495));
+		economy.addOre(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 121));
 		
 		//add redstone
 		economy.addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15));
