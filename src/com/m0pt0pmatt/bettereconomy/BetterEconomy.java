@@ -125,8 +125,6 @@ public class BetterEconomy extends JavaPlugin{
 		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
 	}
 
-	
-
 	/**
 	 * Saves player accounts when the plugin is being disabled.
 	 */

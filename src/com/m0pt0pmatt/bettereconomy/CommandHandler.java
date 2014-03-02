@@ -1,24 +1,12 @@
 package com.m0pt0pmatt.bettereconomy;
 
-import java.util.HashMap;
-
-import org.bukkit.Bukkit;
-import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
-import com.m0pt0pmatt.bettereconomy.currency.Currency;
-import com.sk89q.worldedit.BlockVector;
-import com.sk89q.worldedit.bukkit.selections.Selection;
-import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * The CommandHandler is the class responsible for handling all commands.
@@ -57,8 +45,7 @@ public class CommandHandler {
 				return false;
 			}
 			
-			BetterEconomy.economy.setBalance(sender, args[0], amount);
-			return true;
+			return BetterEconomy.economy.setBalance(sender, args[0], amount);
 		}
 		
 		/**
@@ -78,152 +65,118 @@ public class CommandHandler {
 				return false;
 			}
 			
-			BetterEconomy.economy.evaluateCurrencies(sender);
-			return true;
+			return BetterEconomy.economy.evaluateCurrencies(sender);
 		}
 		
 		/**
 		 * Admin wants to create a bank
+		 * Before running this command, make sure to have a worldedit region selected
+		 * 
+		 * /createbank [bankName]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.CREATEBANK.command)){
-			if (args.length != 0){
-				sender.sendMessage("wrong number of args");
+			
+			if (args.length != 1){
+				sender.sendMessage("Wrong number of arguments.");
 				return false;
 			}
 
 			if (!(sender instanceof Player) || !(sender.isOp())){
-				sender.sendMessage("Must be an OP to execute");
+				sender.sendMessage("Must be an OP Player to execute");
 				return false;
 			}
 			
-			//get the region manager for the homeworld
-			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-			if (rm == null){
-				sender.sendMessage("No region manager for the homeworld");
-				return false;
-			}
-			
-			String name = "__Bank";
-			//make sure name isn't already used
-			if (rm.getRegion("__Bank") != null){
-				sender.sendMessage("I'm sorry, but that name is already in use.");
-				return false;
-			}
-			
-			//get the WorldEdit selection
-			Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
-			BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
-			BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
-			
-			//create WorldGuard Region
-			ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-			region.setFlag(BetterEconomy.isBank, State.ALLOW);
-			region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank");
-			
-			//add the new region to WorldGuard
-			rm.addRegion(region);
-			
-			//add player to the owner of the new region
-			DefaultDomain newDomain = new DefaultDomain();
-			newDomain.addPlayer("__Server");
-			rm.getRegion(name).setOwners(newDomain);
-			
-			//save WorldGuard
-			try {
-				rm.save();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
-			sender.sendMessage("bank created");
-			return true;
+			return BetterEconomy.economy.createBank(sender, args[0]);
 		}
 		
 		/**
 		 * player wants to give another player a certain amount
+		 * 
+		 * /pay [playerName] [amount]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.PAY.command)){
-			if (args.length == 2){
-				int amount;
-				
-				try{
-					amount = Integer.parseInt(args[1]);
-				}
-				catch(Exception e){
-					sender.sendMessage("Error. Only integers are allowed");
-					return false;
-				}
-				
-				if(amount <= 0){
-					sender.sendMessage("Invalid payment amount.");
-					return false;
-				}
-				
-				BetterEconomy.economy.pay(sender, args[0], amount);
-				return true;
+			
+			if (args.length != 2){
+				sender.sendMessage("Wrong number of arguments.");
+				return false;
 			}
 			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
+			int amount;
+			
+			try{
+				amount = Integer.parseInt(args[1]);
+			}
+			catch(Exception e){
+				sender.sendMessage("Error. Enter a valid number (whole numbers only)");
+				return false;
+			}
+			
+			if(amount <= 0){
+				sender.sendMessage("Error. Please specify a positive amount");
+				return false;
+			}
+			
+			return BetterEconomy.economy.pay(sender, args[0], amount);
 		}
 		
 		/**
 		 * player wants to see the top accounts on the server
+		 * 
+		 * /top [number]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.TOP.command)){
-			if (args.length == 1){
-				BetterEconomy.economy.top(sender, Integer.parseInt(args[0]));
-				return true;
+			
+			if (args.length != 1){
+				sender.sendMessage("Wrong number of arguments.");
+				return false;
 			}
 			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
+			return BetterEconomy.economy.top(sender, Integer.parseInt(args[0]));
 		}
 		
 		/**
 		 * player wanted to check the value of something
+		 * 
+		 * /value current
+		 * /value bank
+		 * /value [currencyName]
+		 * /value [currencyName] [amount]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.VALUE.command)){
+			
 			if (args.length == 1){
 				if (args[0].equalsIgnoreCase("current")){
-					BetterEconomy.economy.calculateWealth(sender);
-					return true;
+					return BetterEconomy.economy.calculateWealth(sender);
 				}
 				else if (args[0].equalsIgnoreCase("bank")){
-					HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
-					for(Currency c: BetterEconomy.economy.getCurrencies().values()){
-						int value = 0;
-						if (map.get(c) != null) value = map.get(c);
-						sender.sendMessage(c.getName() + ": " + value);
-					}
-					return true;
+					return BetterEconomy.economy.showBankValues(sender);
 				}
 				else{
-					BetterEconomy.economy.checkValue(sender, args[0], 1);
-					return true;
-				}			
+					return BetterEconomy.economy.checkValue(sender, args[0], 1);
+				}
+			}	
+			else if (args.length == 2){
+				return BetterEconomy.economy.checkValue(sender, args[0], 1);
 			}
-			if (args.length == 2){
-				
-				BetterEconomy.economy.checkValue(sender, args[0], Integer.parseInt(args[1]));
-				return true;
+			else{
+				sender.sendMessage("Wrong number of arguments.");
+				return false;
 			}
-			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
 		}
 		
 		/**
 		 * player wants to check their balance
+		 * 
+		 * /money
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.MONEY.command)){
-			if (args.length == 0){
-				BetterEconomy.economy.showBalance(sender);
-				return true;
+			
+			if (args.length != 0){
+				sender.sendMessage("Wrong number of arguments.");
+				return false;
 			}
 			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
+			return BetterEconomy.economy.showBalance(sender);
 		}
 		
 		
@@ -244,81 +197,39 @@ public class CommandHandler {
 
 		/**
 		 * player wants to deposit money
+		 * 
+		 * /deposit [currencyName] [amount]
+		 * /deposit [currencyName] all
+		 * /deposit all
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.DEPOSIT.command)){
-			if (args.length == 3){
-				if (!(sender instanceof BlockCommandSender)){
-					return false;
-				}
-				//ADDED 2/21/13 @author Lucas Stuyvesant
-				//deposit [currency] all 
-				if (args[2].equalsIgnoreCase("all")){
-					BetterEconomy.economy.depositAll(Bukkit.getPlayer(args[0]), args[1]);
-					return true;
-				}
-				else{
-					BetterEconomy.economy.deposit(Bukkit.getPlayer(args[0]), args[1],Integer.parseInt(args[2]));
-					return true;	
-				}
-				
-			}
+			
 			if (args.length == 2){
 				if (args[1].equalsIgnoreCase("all")){
-					BetterEconomy.economy.depositAll(sender, args[0]);
-					return true;
+					return BetterEconomy.economy.depositAll(sender, args[0]);
 				}
-				else{
-					BetterEconomy.economy.deposit(sender, args[0],Integer.parseInt(args[1]));
-					return true;
-				}
+				return BetterEconomy.economy.deposit(sender, args[0],Integer.parseInt(args[1]));
 			}
 			if (args.length == 1){
 				if(args[0].equalsIgnoreCase("all")){
-					BetterEconomy.economy.depositEverything(sender);
-					return true;
-				}
-				else{
-					sender.sendMessage("Wrong number of arguments");
-					return false;
+					return BetterEconomy.economy.depositEverything(sender);
 				}
 			}
-			else{
-				sender.sendMessage("Wrong number of arguments.");
-				return false;
-			}
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
 		}
 		
 		/**
 		 * player wants to withdraw currency
+		 * 
+		 * /withdraw [currencyName] [amount]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.WITHDRAW.command)){
-			if (args.length == 3){
-				if (!(sender instanceof BlockCommandSender)){
-					return false;
-				}
-				if(args[2].equalsIgnoreCase("all")){
-					BetterEconomy.economy.greedyWithdraw(Bukkit.getPlayer(args[0]), BetterEconomy.economy.getCurrency(args[1]));
-					return true;
-				}
-				else{
-					BetterEconomy.economy.withdraw(Bukkit.getPlayer(args[0]), args[1],Integer.parseInt(args[2]));
-					return true;
-				}
-			}
 			if (args.length == 2){
-				if(args[1].equalsIgnoreCase("all")){
-					BetterEconomy.economy.greedyWithdraw(sender, BetterEconomy.economy.getCurrency(args[0]));
-					return true;
-				}
-				else{
-					BetterEconomy.economy.withdraw(sender, args[0],Integer.parseInt(args[1]));
-					return true;
-				}
+				return BetterEconomy.economy.withdraw(sender, args[0],Integer.parseInt(args[1]));
 			}
-			else{
-				sender.sendMessage("Wrong number of arguments.");
-				return false;
-			}
+			sender.sendMessage("Wrong number of arguments.");
+			return false;
 		}
 		
 		return false;

@@ -24,6 +24,12 @@ import com.m0pt0pmatt.bettereconomy.banks.Bank;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
+import com.sk89q.worldguard.domains.DefaultDomain;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -157,13 +163,14 @@ public class EconomyManager implements Economy{
 	 * Shows a player his or her current balance
 	 * @param sender The player executing the command
 	 */
-	public void showBalance(CommandSender sender) {
+	public boolean showBalance(CommandSender sender) {
 		if (!(hasAccount(sender.getName()))){
 			sender.sendMessage("Error: for some reason you do not have an account");
-			return;
+			return false;
 		}
 		
 		sender.sendMessage("Your current balance is: $" + ((int)getBalance(sender.getName())));
+		return true;
 	}
 	
 	/**
@@ -172,36 +179,36 @@ public class EconomyManager implements Economy{
 	 * @param currency The name of the physical currency specified
 	 * @param amount The amount of physical currency to be withdrawn
 	 */
-	public void withdraw(CommandSender sender, String currencyName, int amount) {
+	public boolean withdraw(CommandSender sender, String currencyName, int amount) {
 		
 		//make sure the amount specified was a positive number
 		if (amount <= 0){
 			sender.sendMessage("Please enter a positive amount");
-			return;
+			return false;
 		}
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
 			sender.sendMessage("Sorry, only players can execute this command");
-			return;
+			return false;
 		}
 		
 		//make sure the player is in the right world
 		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
 			sender.sendMessage("Sorry, you have to be on the HomeWorld to withdraw");
-			return;
+			return false;
 		}
 		
 		Currency currency = currencies.get(currencyName);
 		if (currency == null){
 			sender.sendMessage("Bad currency name");
-			return;
+			return false;
 		}
 		
 		//make sure player has enough funds
 		if (getBalance(sender.getName()) < currency.getValue(amount)){
 			sender.sendMessage("Sorry, you dont have enough money");
-			return;
+			return false;
 		}
 		
 		Inventory playerInventory = ((Player) sender).getInventory();
@@ -209,26 +216,26 @@ public class EconomyManager implements Economy{
 		//checks for enough space to withdraw
 		if (countRoomForCurrency(playerInventory, currency) < amount){
 			sender.sendMessage("Sorry, there is not enough space in your inventory.");
-			return;
+			return false;
 		}
 		
 		//if not enough currency in the bank
 		if(BetterEconomy.bank.getCurrencyAmount(currency) < amount){
 			sender.sendMessage("Not enough " + currency + " in the bank");
-			return;
+			return false;
 		}
 		
 		//add items to inventory
 		if(addCurrency(playerInventory, currency, amount) != 0){
 			sender.sendMessage("Something bad happened!");
-			return;
+			return false;
 		}
 		
 		//remove funds
 		this.withdrawPlayer(sender.getName(), currency.getValue(amount));
 		sender.sendMessage(amount + " " + currency + " was withdrawn.");
 		
-		return;
+		return true;
 	}
 	
 	/**
@@ -236,7 +243,7 @@ public class EconomyManager implements Economy{
 	 * @param sender The individual sending the command
 	 * @param currency The currency to be withdrawn
 	 */
-	public void greedyWithdraw(CommandSender sender, Currency currency){
+	public boolean greedyWithdraw(CommandSender sender, Currency currency){
 		int amount = (int) java.lang.Math.floor(getBalance(sender.getName()) / currency.getValue(1));
 	
 		Inventory playerInventory = ((Player) sender).getInventory();
@@ -249,13 +256,13 @@ public class EconomyManager implements Economy{
 		
 		if(addCurrency(playerInventory, currency, i) != 0){
 			sender.sendMessage("Not enough " + currency.getName() + " in the bank");
-			return;
+			return false;
 		}
 		
 		//remove funds
 		this.withdrawPlayer(sender.getName(), currency.getValue(amount));
 		sender.sendMessage(i + " " + currency.getName() + " was withdrawn.");
-		return;
+		return true;
 	}
 	
 	/**
@@ -264,24 +271,24 @@ public class EconomyManager implements Economy{
 	 * @param currency The name of the physical currency specified
 	 * @param amount The amount of physical currency to be deposited
 	 */
-	public void deposit(CommandSender sender, String currencyName, int amount){
+	public boolean deposit(CommandSender sender, String currencyName, int amount){
 		
 		//make sure amount specified was a positive number
 		if (amount <= 0){
 			sender.sendMessage("Please enter a positive amount");
-			return;
+			return false;
 		}
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
 			sender.sendMessage("Sorry, only players can execute this command");
-			return;
+			return false;
 		}
 		
 		//make sure the player is in the right world
 		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
 			sender.sendMessage("Sorry, you have to be on the HomeWorld to deposit items");
-			return;
+			return false;
 		}
 		
 		Currency currency = this.getCurrency(currencyName);
@@ -295,7 +302,7 @@ public class EconomyManager implements Economy{
 		//make sure enough was found
 		if (i < amount){
 			sender.sendMessage("Sorry, you dont have enough " + currency);
-			return;
+			return false;
 		}
 		
 		//remove items
@@ -304,7 +311,7 @@ public class EconomyManager implements Economy{
 		//add funds
 		this.depositPlayer(sender.getName(), currency.getValue(amount));
 		sender.sendMessage(amount + " " + currency + " was deposited.");
-		return;	
+		return true;	
 	}
 	
 	/** 
@@ -314,12 +321,14 @@ public class EconomyManager implements Economy{
 	 *  @param sender The player executing the command
 	 *  @return void
 	 */
-	 public void depositEverything(CommandSender sender){	 	
+	 public boolean depositEverything(CommandSender sender){	 	
 	 	for(String currencyName: currencies.keySet()){
-	 		depositAll(sender, currencyName);	 	
+	 		if (depositAll(sender, currencyName) == false){
+	 			return false;
+	 		}
 	 	}
 	 
-	 	return; 
+	 	return true; 
 	 }
 	 
 	 /**
@@ -327,18 +336,18 @@ public class EconomyManager implements Economy{
 	  * @param sender The individual sending the command
 	  * @param currency The currency to be deposited
 	  */
-	 public void depositAll(CommandSender sender, String currencyName){
+	 public boolean depositAll(CommandSender sender, String currencyName){
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
 			sender.sendMessage("Sorry, only players can execute this command");
-			return;
+			return false;
 		}
 		
 		//make sure the player is in the right world
 		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
 			sender.sendMessage("Sorry, you have to be on the HomeWorld to deposit items");
-			return;
+			return false;
 		}
 		
 		//get the players inventory
@@ -357,7 +366,7 @@ public class EconomyManager implements Economy{
 		if (amount != 0){
 			sender.sendMessage(amount + " " + currency + " was deposited.");
 		}
-		return;
+		return true;
 	}
 	 
 	/**
@@ -366,22 +375,24 @@ public class EconomyManager implements Economy{
 	 * @param name The name of the currency
 	 * @param amount The amount specified
 	 */
-	public void checkValue(CommandSender sender, String currencyName, int amount){
+	public boolean checkValue(CommandSender sender, String currencyName, int amount){
 		Currency currency = getCurrency(currencyName);
 		if (currency == null){
 			sender.sendMessage("Invalid currency");
+			return false;
 		}
 		
 		String message = amount + " " + currencyName + " is worth $" + (currency.getValue(amount));
 		sender.sendMessage(message);
+		return true;
 	}
 	
-	public void calculateWealth(CommandSender sender){
+	public boolean calculateWealth(CommandSender sender){
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
 			sender.sendMessage("Sorry, only players can execute this command");
-			return;
+			return false;
 		}
 		
 		//get the players inventory
@@ -394,6 +405,7 @@ public class EconomyManager implements Economy{
 		
 		//tell the player
 		sender.sendMessage("You are carrying $" + wealth + " worth in materials");
+		return true;
 	}
 	/**
 	 * Sets a players balance. Can only be executed by the server
@@ -401,41 +413,103 @@ public class EconomyManager implements Economy{
 	 * @param player Player to set balance
 	 * @param amount amount to be set
 	 */
-	public void setBalance(CommandSender server, String playerName, double amount) {
+	public boolean setBalance(CommandSender server, String playerName, double amount) {
 
 		//make sure its the server
 		if (!(server instanceof ConsoleCommandSender)){
 			server.sendMessage("Sorry, only the server can execute this command");
-			return;
+			return false;
 		}
 		
 		Account account = accounts.get(playerName);
 		if (account == null){
 			server.sendMessage("No account for " + playerName);
+			return false;
 		}
 		
+		double previousBalance = account.getBalance();
 		account.setBalance(amount);
 		
-		server.sendMessage("Account was set");
+		server.sendMessage("Account was set to $" + amount + ". Previous amount was $" + previousBalance + ".");
+		return true;
+	}
+	
+	public boolean createBank(CommandSender sender, String bankName) {
+		//get the region manager for the homeworld
+		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
+		if (rm == null){
+			sender.sendMessage("No region manager for the homeworld");
+			return false;
+		}
+		
+		String name = "__bank__" + bankName;
+		//make sure name isn't already used
+		if (rm.getRegion(name) != null){
+			sender.sendMessage("I'm sorry, but the name " + bankName + " is already in use.");
+			return false;
+		}
+		
+		//get the WorldEdit selection
+		Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
+		if (selection == null){
+			sender.sendMessage("Please select an area for the bank before running this command.");
+			return false;
+		}
+		
+		BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
+		BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
+		
+		//create WorldGuard Region
+		ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
+		region.setFlag(BetterEconomy.isBank, State.ALLOW);
+		region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank");
+		
+		//add the new region to WorldGuard
+		rm.addRegion(region);
+		
+		//add player to the owner of the new region
+		DefaultDomain newDomain = new DefaultDomain();
+		newDomain.addPlayer("__Server");
+		rm.getRegion(name).setOwners(newDomain);
+		
+		//save WorldGuard
+		try {
+			rm.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		sender.sendMessage("Bank \"" + bankName + "\" was created.");
+		return true;
+	}
+	
+	public boolean showBankValues(CommandSender sender){
+		HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
+		for(Currency c: BetterEconomy.economy.getCurrencies().values()){
+			int value = 0;
+			if (map.get(c) != null) value = map.get(c);
+			sender.sendMessage(c.getName() + ": " + value);
+		}
+		return true;
 	}
 
-	public void pay(CommandSender sender, String receiver, double amount) {
+	public boolean pay(CommandSender sender, String receiver, double amount) {
 
 		if (!hasAccount(sender.getName())){
 			sender.sendMessage("I'm sorry, but you do not have an account");
-			return;
+			return false;
 		}
 		
 		if (!hasAccount(receiver)){
 			sender.sendMessage("I'm sorry, but " + receiver + " does not have an account");
-			return;
+			return false;
 		}
 		
 		//make sure sender has enough money
 		Account sendersAccount = accounts.get(sender.getName());
 		if (sendersAccount.getBalance() < amount){
 			sender.sendMessage("I'm sorry, but you do not have that much money in your account");
-			return;
+			return false;
 		}
 		
 		//take money from the sender
@@ -448,10 +522,10 @@ public class EconomyManager implements Economy{
 		//notify both players
 		sender.sendMessage("You have payed " + receiver + " $" + amount + " dollars");
 		Bukkit.getPlayer(receiver).sendMessage("" + sender.getName() + " has payed you $" + amount + " dollars");
-		
+		return true;
 	}
 
-	public void top(CommandSender sender, int number) {
+	public boolean top(CommandSender sender, int number) {
 
 		sender.sendMessage("here are the top " + number + " accounts on the server:");
 		
@@ -466,18 +540,20 @@ public class EconomyManager implements Economy{
 			sender.sendMessage(a.getOwner() + ": " + a.getBalance());
 			i++;
 			if (i == number){
-				return;
+				return true;
 			}
 		}
 		
+		return true;
 	}
 
 	/**
 	 * Counts all currencies in a region and prints the result as a percentage
 	 * of all blocks in a selection
 	 * @param sender the player who issued the command that calls this function
+	 * @return 
 	 */
-	public void evaluateCurrencies(CommandSender sender){
+	public boolean evaluateCurrencies(CommandSender sender){
 		
 		Map<Currency,Integer> map = new HashMap<Currency,Integer>();
 		
@@ -516,7 +592,7 @@ public class EconomyManager implements Economy{
 			sender.sendMessage(c.getName() + ": " + map.get(c) + "/" + volume);
 		}
 		
-		return;
+		return true;
 	}
 	
 	//----------------------
@@ -1140,7 +1216,7 @@ public class EconomyManager implements Economy{
 	public EconomyResponse withdrawPlayer(String playerName, String world, double amount) {
 		return withdrawPlayer(playerName, amount);
 	}
-	
+
 	//----------------------
 	//END OF VAULT MATHODS
 	//----------------------
