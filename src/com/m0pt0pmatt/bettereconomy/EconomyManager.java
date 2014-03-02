@@ -113,23 +113,23 @@ public class EconomyManager implements Economy{
 		
 		//add coal
 		addCurrency(new Currency("coal", new ItemStack(Material.COAL), 10, true));
-		addCurrency(new Currency("coal_block", new ItemStack(Material.COAL_BLOCK), 90, true));
+		addCurrency(new Currency("coal_block", new ItemStack(Material.COAL_BLOCK), 90, false));
 		addCurrency(new Currency("coal_ore", new ItemStack(Material.COAL_ORE), 22, false));
 		
 		//add iron
 		addCurrency(new Currency("iron", new ItemStack(Material.IRON_INGOT), 20, true));
-		addCurrency(new Currency("iron_block", new ItemStack(Material.IRON_BLOCK), 180, true));
+		addCurrency(new Currency("iron_block", new ItemStack(Material.IRON_BLOCK), 180, false));
 		addCurrency(new Currency("iron_ore", new ItemStack(Material.IRON_ORE), 20, false));
 		
 		//add gold
 		addCurrency(new Currency("gold",  new ItemStack(Material.GOLD_INGOT), 200, true));
-		addCurrency(new Currency("gold_block", new ItemStack(Material.GOLD_BLOCK), 1800, true));
+		addCurrency(new Currency("gold_block", new ItemStack(Material.GOLD_BLOCK), 1800, false));
 		addCurrency(new Currency("gold_ore", new ItemStack(Material.GOLD_ORE), 200, false));
 		addCurrency(new Currency("gold_nugget",  new ItemStack(Material.GOLD_NUGGET), (int)Math.floor(200/9), false));
 		
 		//add diamond
 		addCurrency(new Currency("diamond", new ItemStack(Material.DIAMOND), 500, true));
-		addCurrency(new Currency("diamond_block", new ItemStack(Material.DIAMOND_BLOCK), 4500, true));
+		addCurrency(new Currency("diamond_block", new ItemStack(Material.DIAMOND_BLOCK), 4500, false));
 		addCurrency(new Currency("diamond_ore", new ItemStack(Material.DIAMOND_ORE), 1100, false));
 		
 		//add lapis
@@ -138,12 +138,12 @@ public class EconomyManager implements Economy{
 		ItemStack inc = new ItemStack(Material.INK_SACK);
 		inc.setData(lapis);
 		addCurrency(new Currency("lapis", new ItemStack(inc), 55, true));
-		addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495, true));
+		addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495, false));
 		addCurrency(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 120, false));
 		
 		//add redstone
 		addCurrency(new Currency("redstone", new ItemStack(Material.REDSTONE), 15, true));
-		addCurrency(new Currency("redstone_block", new ItemStack(Material.REDSTONE_BLOCK), 135, true));
+		addCurrency(new Currency("redstone_block", new ItemStack(Material.REDSTONE_BLOCK), 135, false));
 		addCurrency(new Currency("redstone_ore", new ItemStack(Material.REDSTONE_ORE), 33, false));
 		
 		//add quartz
@@ -205,6 +205,13 @@ public class EconomyManager implements Economy{
 			return false;
 		}
 		
+		//make sure the currency is tradable
+		if (!currency.isTradeable()){
+			sender.sendMessage("I'm sorry, but this currency cannot be withdrawn.");
+			sender.sendMessage("Convert the currency to its regular form to withdraw it");
+			return false;
+		}
+		
 		//make sure player has enough funds
 		if (getBalance(sender.getName()) < currency.getValue(amount)){
 			sender.sendMessage("Sorry, you dont have enough money");
@@ -220,10 +227,14 @@ public class EconomyManager implements Economy{
 		}
 		
 		//if not enough currency in the bank
-		if(BetterEconomy.bank.getCurrencyAmount(currency) < amount){
-			sender.sendMessage("Not enough " + currency + " in the bank");
+		int bankAmount = BetterEconomy.bank.getCurrencyAmount(currency);
+		if(bankAmount < amount){
+			sender.sendMessage("Not enough " + currency.getName() + " in the bank");
 			return false;
 		}
+		
+		//take items from bank
+		BetterEconomy.bank.updateAmount(currency, bankAmount - amount);
 		
 		//add items to inventory
 		if(addCurrency(playerInventory, currency, amount) != 0){
@@ -233,35 +244,8 @@ public class EconomyManager implements Economy{
 		
 		//remove funds
 		this.withdrawPlayer(sender.getName(), currency.getValue(amount));
-		sender.sendMessage(amount + " " + currency + " was withdrawn.");
+		sender.sendMessage(amount + " " + currency.getName() + " was withdrawn.");
 		
-		return true;
-	}
-	
-	/**
-	 * Greedily withdraws a currency from a sender's account
-	 * @param sender The individual sending the command
-	 * @param currency The currency to be withdrawn
-	 */
-	public boolean greedyWithdraw(CommandSender sender, Currency currency){
-		int amount = (int) java.lang.Math.floor(getBalance(sender.getName()) / currency.getValue(1));
-	
-		Inventory playerInventory = ((Player) sender).getInventory();
-		
-		//checks for max space for currency withdraw
-		int i = amount;
-		if (countRoomForCurrency(playerInventory, currency) < amount){
-			i = countRoomForCurrency(playerInventory, currency);
-		}
-		
-		if(addCurrency(playerInventory, currency, i) != 0){
-			sender.sendMessage("Not enough " + currency.getName() + " in the bank");
-			return false;
-		}
-		
-		//remove funds
-		this.withdrawPlayer(sender.getName(), currency.getValue(amount));
-		sender.sendMessage(i + " " + currency.getName() + " was withdrawn.");
 		return true;
 	}
 	
@@ -292,6 +276,17 @@ public class EconomyManager implements Economy{
 		}
 		
 		Currency currency = this.getCurrency(currencyName);
+		if (currency == null){
+			sender.sendMessage("Bad currency name");
+			return false;
+		}
+		
+		//make sure the currency is tradable
+		if (!currency.isTradeable()){
+			sender.sendMessage("I'm sorry, but this currency cannot be deposited.");
+			sender.sendMessage("Convert the currency to its regular form to deposit it");
+			return false;
+		}
 		
 		//get the players inventory
 		Inventory playerInventory = ((Player) sender).getInventory();
@@ -301,16 +296,19 @@ public class EconomyManager implements Economy{
 		
 		//make sure enough was found
 		if (i < amount){
-			sender.sendMessage("Sorry, you dont have enough " + currency);
+			sender.sendMessage("Sorry, you dont have enough " + currency.getName());
 			return false;
 		}
 		
 		//remove items
 		removeCurrency(playerInventory, currency, amount);
-						
+		
+		//add items to bank
+		BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) + amount);
+		
 		//add funds
 		this.depositPlayer(sender.getName(), currency.getValue(amount));
-		sender.sendMessage(amount + " " + currency + " was deposited.");
+		sender.sendMessage(amount + " " + currency.getName() + " was deposited.");
 		return true;	
 	}
 	
@@ -358,15 +356,7 @@ public class EconomyManager implements Economy{
 		//check inventory
 		int amount = countCurrency(playerInventory, currency);
 		
-		removeCurrency(playerInventory, currency, amount);
-						
-		//add funds
-		depositPlayer(sender.getName(), currency.getValue(amount));
-		
-		if (amount != 0){
-			sender.sendMessage(amount + " " + currency + " was deposited.");
-		}
-		return true;
+		return deposit(sender, currencyName, amount);
 	}
 	 
 	/**
@@ -486,9 +476,11 @@ public class EconomyManager implements Economy{
 	public boolean showBankValues(CommandSender sender){
 		HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
 		for(Currency c: BetterEconomy.economy.getCurrencies().values()){
-			int value = 0;
-			if (map.get(c) != null) value = map.get(c);
-			sender.sendMessage(c.getName() + ": " + value);
+			if (c.isTradeable()){
+				int value = 0;
+				if (map.get(c) != null) value = map.get(c);
+				sender.sendMessage(c.getName() + ": " + value);
+			}
 		}
 		return true;
 	}
