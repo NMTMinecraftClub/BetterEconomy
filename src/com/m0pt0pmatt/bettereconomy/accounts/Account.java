@@ -2,13 +2,12 @@ package com.m0pt0pmatt.bettereconomy.accounts;
 
 import java.io.Serializable;
 
-public abstract class Account implements Serializable {
+public class Account implements Serializable {
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
 	
 	private double balance;
 	private String owner;

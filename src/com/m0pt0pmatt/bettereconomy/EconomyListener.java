@@ -9,7 +9,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
-import com.m0pt0pmatt.bettereconomy.accounts.InventoryAccount;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 
 /**
@@ -48,7 +47,8 @@ public class EconomyListener implements Listener{
 		
 		//If player does not have an account, create one
 		if (!(economy.hasAccount(event.getPlayer().getName()))){
-			economy.addAccount(new InventoryAccount(event.getPlayer().getName(), EconomyManager.startingBalance));
+			
+			economy.createPlayerAccount(event.getPlayer().getName());
 			event.getPlayer().sendMessage("Your new account has been made");
 			System.out.println("[HomeWorldPlugin-Economy] made new account for " + event.getPlayer().getName());
 		}
@@ -68,15 +68,10 @@ public class EconomyListener implements Listener{
 			int valueLost = 0;
 
 			// Iterates through arraylists depositing items
-		 	for(Currency currency: economy.getCurrencies()){
-		 		inventoryAmount = economy.countInventory(player.getEnderChest(), currency);
+		 	for(Currency currency: economy.getCurrencies().values()){
+		 		inventoryAmount = economy.countCurrency(player.getEnderChest(), currency);
 				economy.removeCurrency(player.getEnderChest(), currency, (int)Math.ceil(inventoryAmount * percentLost / 100.));
-				valueLost += economy.getCurrencyValue(currency.getName()) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
-		 	}
-		 	for(Currency currency: economy.getOres()){
-		 		inventoryAmount = economy.countOreInventory(player.getEnderChest(), currency);
-				economy.removeCurrency(player.getEnderChest(), currency, (int)Math.ceil(inventoryAmount * percentLost / 100.));
-				valueLost += economy.getOreValue(currency.getName()) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
+				valueLost += currency.getValue(1) * (int)Math.ceil(inventoryAmount * percentLost / 100.);
 		 	}
 
 			player.sendMessage("You died in the wilderness");

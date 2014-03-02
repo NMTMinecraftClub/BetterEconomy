@@ -1,7 +1,6 @@
 package com.m0pt0pmatt.bettereconomy;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.BlockCommandSender;
@@ -9,13 +8,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
@@ -40,40 +39,53 @@ public class CommandHandler {
 		
 		/**
 		 * server wants to set a players balance
+		 * /setbalance [playername] [amount]
 		 */
-		if(cmd.getName().equalsIgnoreCase("setbalance")){
-			if (args.length == 2){
-				BetterEconomy.economy.setBalance(sender, args[0], Double.parseDouble(args[1]));
-				return true;
-			}
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.SETBALANCE.command)){
 			
-			sender.sendMessage("Wrong number of arguments.");
-			return false;
-		}
-		
-		/**
-		 * admin wants to evaluate the economy (currencies)
-		 */
-		if(cmd.getName().equalsIgnoreCase("evaluateEconomy")){
-			if (args.length != 0){
-				sender.sendMessage("wrong number of args");
-				return false;
-			}
-
-			if (!(sender instanceof Player) || !(sender.isOp())){
-				sender.sendMessage("Must be an OP to execute");
+			if (args.length != 2){
+				sender.sendMessage("Wrong number of arguments.");
 				return false;
 			}
 			
-			BetterEconomy.economy.evaluateCurrencies(sender);
+			double amount;
 			
+			try{
+				amount = Double.parseDouble(args[1]);
+			} catch(Exception e){
+				sender.sendMessage("Error. Enter a valid number");
+				return false;
+			}
+			
+			BetterEconomy.economy.setBalance(sender, args[0], amount);
 			return true;
 		}
 		
 		/**
-		 * admin wants to create a bank
+		 * Admin wants to evaluate the economy (currencies)
+		 * 
+		 * /evaluateeconomy
 		 */
-		if(cmd.getName().equalsIgnoreCase("createBank")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.EVALUATEECONOMY.command)){
+			
+			if (args.length != 0){
+				sender.sendMessage("Wrong number of arguments.");
+				return false;
+			}
+
+			if (!(sender instanceof Player) || !(sender.isOp())){
+				sender.sendMessage("Must be an OP Player to execute");
+				return false;
+			}
+			
+			BetterEconomy.economy.evaluateCurrencies(sender);
+			return true;
+		}
+		
+		/**
+		 * Admin wants to create a bank
+		 */
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.CREATEBANK.command)){
 			if (args.length != 0){
 				sender.sendMessage("wrong number of args");
 				return false;
@@ -130,14 +142,24 @@ public class CommandHandler {
 		/**
 		 * player wants to give another player a certain amount
 		 */
-		if(cmd.getName().equalsIgnoreCase("pay")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.PAY.command)){
 			if (args.length == 2){
-				double d;
-				if((d = Double.parseDouble(args[1])) <= 0){
+				int amount;
+				
+				try{
+					amount = Integer.parseInt(args[1]);
+				}
+				catch(Exception e){
+					sender.sendMessage("Error. Only integers are allowed");
+					return false;
+				}
+				
+				if(amount <= 0){
 					sender.sendMessage("Invalid payment amount.");
 					return false;
 				}
-				BetterEconomy.economy.pay(sender, args[0], d);
+				
+				BetterEconomy.economy.pay(sender, args[0], amount);
 				return true;
 			}
 			
@@ -148,7 +170,7 @@ public class CommandHandler {
 		/**
 		 * player wants to see the top accounts on the server
 		 */
-		if(cmd.getName().equalsIgnoreCase("top")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.TOP.command)){
 			if (args.length == 1){
 				BetterEconomy.economy.top(sender, Integer.parseInt(args[0]));
 				return true;
@@ -161,7 +183,7 @@ public class CommandHandler {
 		/**
 		 * player wanted to check the value of something
 		 */
-		if(cmd.getName().equalsIgnoreCase("value")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.VALUE.command)){
 			if (args.length == 1){
 				if (args[0].equalsIgnoreCase("current")){
 					BetterEconomy.economy.calculateWealth(sender);
@@ -169,7 +191,7 @@ public class CommandHandler {
 				}
 				else if (args[0].equalsIgnoreCase("bank")){
 					HashMap<Currency,Integer> map = BetterEconomy.bank.getMap();
-					for(Currency c: BetterEconomy.economy.getCurrencies()){
+					for(Currency c: BetterEconomy.economy.getCurrencies().values()){
 						int value = 0;
 						if (map.get(c) != null) value = map.get(c);
 						sender.sendMessage(c.getName() + ": " + value);
@@ -194,7 +216,7 @@ public class CommandHandler {
 		/**
 		 * player wants to check their balance
 		 */
-		if(cmd.getName().equalsIgnoreCase("money")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.MONEY.command)){
 			if (args.length == 0){
 				BetterEconomy.economy.showBalance(sender);
 				return true;
@@ -208,9 +230,7 @@ public class CommandHandler {
 		//make sure the player is in a bank before executing bank commands
 		if (!(sender instanceof Player)){
 			return false;
-		}
-		
-		
+		}	
 		
 		Player player = (Player) sender;
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
@@ -225,7 +245,7 @@ public class CommandHandler {
 		/**
 		 * player wants to deposit money
 		 */
-		if(cmd.getName().equalsIgnoreCase("deposit")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.DEPOSIT.command)){
 			if (args.length == 3){
 				if (!(sender instanceof BlockCommandSender)){
 					return false;
@@ -271,7 +291,7 @@ public class CommandHandler {
 		/**
 		 * player wants to withdraw currency
 		 */
-		if(cmd.getName().equalsIgnoreCase("withdraw")){
+		if(cmd.getName().equalsIgnoreCase(EconomyCommand.WITHDRAW.command)){
 			if (args.length == 3){
 				if (!(sender instanceof BlockCommandSender)){
 					return false;
@@ -293,16 +313,6 @@ public class CommandHandler {
 				else{
 					BetterEconomy.economy.withdraw(sender, args[0],Integer.parseInt(args[1]));
 					return true;
-				}
-			}
-			if (args.length == 1){
-				if(args[0].equalsIgnoreCase("all")){
-					BetterEconomy.economy.withdrawAll(sender);
-					return true;
-				}
-				else{
-					sender.sendMessage("Wrong number of arguments");
-					return false;
 				}
 			}
 			else{

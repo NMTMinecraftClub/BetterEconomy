@@ -11,29 +11,33 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import com.m0pt0pmatt.bettereconomy.BetterEconomy;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 
-
 /**
- * Banks are structures which trade currencies
+ * Banks are structures which trade currencies to/from players
  * @author Matthew
  *
  */
 public class Bank {
 
+	//name of the bank, used for looking up WorldGuard regions and player accounts
+	private String name;
 	
 	//A map from a currency to the amount of that currency currently stored
 	private HashMap<Currency,Integer> amounts;
 	
+	//configuration
 	private File configFile;
 	private YamlConfiguration config;
 	
-	public Bank(BetterEconomy plugin, String configName){
+	public Bank(String bankName, File configFile){
+		this.name = bankName;
 		amounts = new HashMap<Currency,Integer>();
-		configFile = new File(plugin.getDataFolder(), configName);	
+		this.configFile = configFile;
+		config = YamlConfiguration.loadConfiguration(configFile);
 		load();
 	}
 	
 	public void load(){
-		config = YamlConfiguration.loadConfiguration(configFile);
+		
 		ConfigurationSection currenciesSection = config.getConfigurationSection("currencies");
 		if (currenciesSection == null){
 			return;
@@ -58,9 +62,12 @@ public class Bank {
 		try {
 			config.save(configFile);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public String getName(){
+		return name;
 	}
 	
 	/**
@@ -74,8 +81,14 @@ public class Bank {
 	 * Adds a currency to the bank (initial amount = 0)
 	 * @param c currency to be added
 	 */
-	public void addCurrency(Currency c){
-		amounts.put(c,0);
+	public boolean addCurrency(Currency c){
+		
+		if (c.isTradeable()){
+			amounts.put(c,0);
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
