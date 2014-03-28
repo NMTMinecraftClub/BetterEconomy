@@ -225,8 +225,17 @@ public class CommandHandler {
 		 * /withdraw [currencyName] [amount]
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.WITHDRAW.command)){
+			
 			if (args.length == 2){
-				return BetterEconomy.economy.withdraw(sender, args[0],Integer.parseInt(args[1]));
+				if (args[1].equalsIgnoreCase("all")){
+					return BetterEconomy.economy.withdrawAll(sender, args[0]);
+				}
+				return BetterEconomy.economy.withdraw(sender, args[0], Integer.parseInt(args[1]));
+			}
+			if (args.length == 1){
+				if(args[0].equalsIgnoreCase("all")){
+					return BetterEconomy.economy.withdrawEverything(sender);
+				}
 			}
 			sender.sendMessage("Wrong number of arguments.");
 			return false;

@@ -9,16 +9,18 @@ import org.bukkit.inventory.ItemStack;
  */
 public class Currency {
 	
-	private final String name;		//name of the physical currency
-	private final ItemStack item;	//actual representation of the currency
-	private final int value;		//value of the currency
-	private final boolean tradeable;//whether or not the currency can be exchanged at a bank
+	public enum CurrencyType{BASE, BLOCK, OTHER}
 	
-	public Currency(String name, ItemStack item, int value, boolean tradeable){
+	private final String name;			//name of the physical currency
+	private final ItemStack item;		//actual representation of the currency
+	private final int value;			//value of the currency
+	private final CurrencyType type;	//whether or not the currency can be exchanged at a bank
+	
+	public Currency(String name, ItemStack item, int value, CurrencyType type){
 		this.name = name;
 		this.item = item;
 		this.value = value;
-		this.tradeable = tradeable;
+		this.type = type;
 	}
 	
 	public String getName(){
@@ -37,7 +39,7 @@ public class Currency {
 		return (amount * value);
 	}
 
-	public boolean isTradeable() {
-		return tradeable;
+	public CurrencyType getType() {
+		return type;
 	}
 }
