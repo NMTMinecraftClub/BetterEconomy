@@ -730,8 +730,8 @@ public class EconomyManager implements Economy{
 	 * @return true if so, false if not
 	 */
 	public boolean isCurrency(ItemStack stack, String currencyName){
-		if (stack.getData().equals(currencies.get(currencyName).getItem().getData()) 
-			&& stack.getItemMeta().equals(currencies.get(currencyName).getItem().getItemMeta())){
+		if (stack.getData().equals(currencies.get(currencyName.toLowerCase()).getItem().getData()) 
+			&& stack.getItemMeta().equals(currencies.get(currencyName.toLowerCase()).getItem().getItemMeta())){
 				return true;
 		}
 		return false;

@@ -83,12 +83,8 @@ public class Bank {
 	 */
 	public boolean addCurrency(Currency c){
 		
-		if (c.isTradeable()){
-			amounts.put(c,0);
-			return true;
-		}
-		
-		return false;
+		amounts.put(c,0);
+		return true;
 	}
 	
 	/**
@@ -102,7 +98,6 @@ public class Bank {
 		}
 		
 		return 0;
-		
 	}
 	
 	/**
