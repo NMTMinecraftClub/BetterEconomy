@@ -4,8 +4,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.LandPurchasing.flags.CustomFlag;
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 
 /**
@@ -189,8 +191,8 @@ public class CommandHandler {
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
 		ApplicableRegionSet ars = rm.getApplicableRegions(player.getLocation());
 		
-		if (!ars.allows(BetterEconomy.isBank)){
-			sender.sendMessage("You must be inside of a bank to execute the command /" + cmd.getName());
+		if (!ars.allows((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag())){
+			sender.sendMessage("You must be inside of a bank/atm to execute the command /" + cmd.getName());
 			return false;
 		}
 		
@@ -222,7 +224,9 @@ public class CommandHandler {
 		/**
 		 * player wants to withdraw currency
 		 * 
-		 * /withdraw [currencyName] [amount]
+		 *	/withdraw [currencyName] [amount]
+		 *	/withdraw [currencyName] all
+		 *	/withdraw all
 		 */
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.WITHDRAW.command)){
 			
