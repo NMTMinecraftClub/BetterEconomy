@@ -48,8 +48,22 @@ public class EconomyManager implements Economy{
 	private final Map<String, Bank> banks = new HashMap<String, Bank>();
 
 	private YamlConfiguration config;
+
+	public static File configFile;
 	
 	public EconomyManager(File file){
+		
+		if (!file.exists()){
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		configFile = file;
+		
 		config = YamlConfiguration.loadConfiguration(file);
 		setupCurrencies();
 	}
@@ -67,12 +81,11 @@ public class EconomyManager implements Economy{
 		ConfigurationSection accountsSection = config.createSection("accounts");
 		for (Account account: accounts.values()){
 			accountsSection.set(account.getOwner(), account.getBalance());
-			
 		}
 		
 		//save the file
 		try {
-			BetterEconomy.config.save(BetterEconomy.configFile);
+			config.save(configFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

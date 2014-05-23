@@ -22,4 +22,4 @@ commands:
     createbank:
         description: Creates a bank.
     evaluateeconomy:
-    	description: evaluates currency (ore) distribution over a selection
+        description: evaluates currency (ore) distribution over a selection

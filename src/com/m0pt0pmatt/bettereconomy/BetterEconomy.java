@@ -50,16 +50,6 @@ public class BetterEconomy extends JavaPlugin{
 	public static FileSavingThread savingThread = null;
 	
 	/**
-	 * The base configuration file for BetterEconomy
-	 */
-	public static YamlConfiguration config;
-	
-	/**
-	 * The actual File object of the base config file.
-	 */
-	public static File configFile;
-	
-	/**
 	 * The WorldGuard hook
 	 */
 	public static WorldGuardPlugin wgplugin = null;

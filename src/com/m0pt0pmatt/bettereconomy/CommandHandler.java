@@ -1,5 +1,7 @@
 package com.m0pt0pmatt.bettereconomy;
 
+import java.util.Iterator;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -7,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * The CommandHandler is the class responsible for handling all commands.
@@ -189,12 +192,20 @@ public class CommandHandler {
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(player.getWorld());
 		ApplicableRegionSet ars = rm.getApplicableRegions(player.getLocation());
 		
-		if (!ars.allows(BetterEconomy.isBank)){
+		Iterator<ProtectedRegion> i = ars.iterator();
+		boolean good = false;
+		while (i.hasNext()){
+			ProtectedRegion r = i.next();
+			if (r.getId().equalsIgnoreCase("__bank__global")){
+				good = true; break;
+			}
+		
+		}
+			
+		if (!good){
 			sender.sendMessage("You must be inside of a bank to execute the command /" + cmd.getName());
 			return false;
 		}
-		
-
 		/**
 		 * player wants to deposit money
 		 * 
