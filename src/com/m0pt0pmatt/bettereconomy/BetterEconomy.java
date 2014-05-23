@@ -10,11 +10,14 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.m0pt0pmatt.LandPurchasing.flags.CustomFlag;
+import com.m0pt0pmatt.LandPurchasing.managers.LandService;
 import com.m0pt0pmatt.bettereconomy.banks.Bank;
 import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.BooleanFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -59,7 +62,7 @@ public class BetterEconomy extends JavaPlugin{
 	 */
 	public static WorldEditPlugin weplugin = null;
 	
-	public static StateFlag isBank = new StateFlag("can-bank", false);
+	//public static StateFlag isBank = new StateFlag("can-bank", false);
 	
 	/**
 	 * This is ran once the plugin is enabled. It is ran after the constructor.
@@ -108,9 +111,8 @@ public class BetterEconomy extends JavaPlugin{
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
 		ProtectedRegion region = rm.getRegion("__bank__global");
 		if (region != null){
-			region.setFlag(BetterEconomy.isBank, State.ALLOW);
+			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
 		}
-		
 		
 		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
 	}
