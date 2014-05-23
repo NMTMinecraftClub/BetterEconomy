@@ -567,7 +567,10 @@ public class EconomyManager implements Economy{
 		
 		//create WorldGuard Region
 		ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-		region.setFlag(BetterEconomy.isBank, State.ALLOW);
+		
+		//region.setFlag(BetterEconomy.isBank, State.ALLOW);
+		//TODO: make flags work again
+		
 		region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank");
 		
 		//add the new region to WorldGuard
