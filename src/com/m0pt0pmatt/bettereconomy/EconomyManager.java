@@ -150,9 +150,7 @@ public class EconomyManager implements Economy{
 		//add lapis
 		Dye lapis = new Dye();
 		lapis.setColor(DyeColor.BLUE);
-		ItemStack inc = new ItemStack(Material.INK_SACK);
-		inc.setData(lapis);
-		addCurrency(new Currency("lapis", new ItemStack(inc), 55, Currency.CurrencyType.BASE));
+		addCurrency(new Currency("lapis", lapis.toItemStack(), 55, Currency.CurrencyType.BASE));
 		addCurrency(new Currency("lapis_block", new ItemStack(Material.LAPIS_BLOCK), 495, Currency.CurrencyType.BLOCK));
 		addCurrency(new Currency("lapis_ore", new ItemStack(Material.LAPIS_ORE), 120, Currency.CurrencyType.OTHER));
 		
