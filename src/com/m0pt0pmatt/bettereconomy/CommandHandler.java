@@ -1,7 +1,9 @@
 package com.m0pt0pmatt.bettereconomy;
 
 import java.util.Iterator;
+import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -48,7 +50,7 @@ public class CommandHandler {
 				return false;
 			}
 			
-			return BetterEconomy.economy.setBalance(sender, args[0], amount);
+			return BetterEconomy.economy.setBalance(sender, UUID.fromString(args[0]), amount);
 		}
 		
 		/**
@@ -105,6 +107,7 @@ public class CommandHandler {
 			}
 			
 			int amount;
+			UUID receiver_id;
 			
 			try{
 				amount = Integer.parseInt(args[1]);
@@ -119,7 +122,14 @@ public class CommandHandler {
 				return false;
 			}
 			
-			return BetterEconomy.economy.pay(sender, args[0], amount);
+			try {
+				receiver_id = UUID.fromString(args[0]);
+			}
+			catch (IllegalArgumentException E) {
+				receiver_id = null;
+			}
+			
+			return BetterEconomy.economy.pay(sender, receiver_id == null ? Bukkit.getOfflinePlayer(args[0]) : Bukkit.getOfflinePlayer(receiver_id), amount);
 		}
 		
 		/**
@@ -196,7 +206,7 @@ public class CommandHandler {
 		boolean good = false;
 		while (i.hasNext()){
 			ProtectedRegion r = i.next();
-			if (r.getId().equalsIgnoreCase("__bank__global")){
+			if (r.getId().startsWith("__bank__")){
 				good = true; break;
 			}
 		}

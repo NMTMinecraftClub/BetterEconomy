@@ -108,6 +108,9 @@ public class BetterEconomy extends JavaPlugin{
 		
 		//the worst fix ever
 		//get the region manager for the homeworld
+		if (Bukkit.getWorld("HomeWorld") == null) {
+			getLogger().info("null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		}
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
 		ProtectedRegion region = rm.getRegion("__bank__global");
 		if (region != null){
