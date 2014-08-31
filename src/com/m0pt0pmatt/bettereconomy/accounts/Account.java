@@ -2,6 +2,8 @@ package com.m0pt0pmatt.bettereconomy.accounts;
 
 import java.io.Serializable;
 
+import org.bukkit.OfflinePlayer;
+
 public class Account implements Serializable {
 	
 	/**
@@ -10,13 +12,13 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private double balance;
-	private String owner;
+	private OfflinePlayer owner;
 	
 	/**
 	 * Creates a new account with a balance of 0
 	 * @param owner name of the account owner
 	 */
-	public Account(String owner){
+	public Account(OfflinePlayer owner){
 		this(owner, 0);
 	}
 	
@@ -25,7 +27,7 @@ public class Account implements Serializable {
 	 * @param owner name of the account owner
 	 * @param balance initial balance of the account
 	 */
-	public Account(String owner, double balance){
+	public Account(OfflinePlayer owner, double balance){
 		this.setOwner(owner);
 		this.setBalance(balance);
 		
@@ -43,7 +45,7 @@ public class Account implements Serializable {
 	 * Returns the name of the owner of the account
 	 * @return the name of the owner of the account
 	 */
-	public String getOwner(){
+	public OfflinePlayer getOwner(){
 		return owner;
 	}
 	
@@ -59,7 +61,7 @@ public class Account implements Serializable {
 	 * Sets the owner
 	 * @param owner new owner to be set
 	 */
-	public void setOwner(String owner){
+	public void setOwner(OfflinePlayer owner){
 		this.owner = owner;
 	}
 	

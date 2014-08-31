@@ -8,10 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.ConfigurationSection;
@@ -46,7 +48,7 @@ public class EconomyManager implements Economy{
 	
 	//internal data structures
 	private final Map<String, Currency> currencies = new HashMap<String, Currency>();
-	private final Map<String, Account> accounts = new HashMap<String, Account>();
+	private final Map<UUID, Account> accounts = new HashMap<UUID, Account>();
 	private final Map<String, Bank> banks = new HashMap<String, Bank>();
 
 	private YamlConfiguration config;
@@ -82,7 +84,7 @@ public class EconomyManager implements Economy{
 		//write the accounts
 		ConfigurationSection accountsSection = config.createSection("accounts");
 		for (Account account: accounts.values()){
-			accountsSection.set(account.getOwner(), account.getBalance());
+			accountsSection.set(account.getOwner().getUniqueId().toString(), account.getBalance());
 		}
 		
 		//save the file
@@ -111,7 +113,9 @@ public class EconomyManager implements Economy{
 		
 		//read the new accounts
 		for (String accountName: accountsSection.getKeys(false)){
-			accounts.put(accountName, new Account(accountName, accountsSection.getDouble(accountName)));
+			UUID account;
+			account = UUID.fromString(accountName);
+			accounts.put(account, new Account(Bukkit.getOfflinePlayer(account), accountsSection.getDouble(accountName)));
 		}
 	}
 	
@@ -182,7 +186,7 @@ public class EconomyManager implements Economy{
 			return false;
 		}
 		
-		sender.sendMessage("Your current balance is: $" + ((int)getBalance(sender.getName())));
+		sender.sendMessage("Your current balance is: $" + ((int)getBalance((OfflinePlayer) sender)));
 		return true;
 	}
 	
@@ -219,7 +223,7 @@ public class EconomyManager implements Economy{
 		}
 		
 		//make sure player has enough funds
-		if (getBalance(sender.getName()) < currency.getValue(amount)){
+		if (getBalance((OfflinePlayer) sender) < currency.getValue(amount)){
 			sender.sendMessage("Sorry, you dont have enough money");
 			return false;
 		}
@@ -273,7 +277,7 @@ public class EconomyManager implements Economy{
 		BetterEconomy.bank.updateAmount(currency, bankAmount - amount);
 		
 		//remove funds
-		this.withdrawPlayer(sender.getName(), currency.getValue(amount));
+		this.withdrawPlayer((OfflinePlayer) sender, currency.getValue(amount));
 		sender.sendMessage(amount + " " + currency.getName() + " was withdrawn.");
 		
 		return true;
@@ -391,6 +395,11 @@ public class EconomyManager implements Economy{
 	 */
 	public boolean deposit(CommandSender sender, String currencyName, int amount){
 		
+		if (!(sender instanceof Player)) {
+			sender.sendMessage("Sorry, only players can execute this command");
+			return false;
+		}
+		
 		Currency currency = this.getCurrency(currencyName);
 		Inventory playerInventory = ((Player) sender).getInventory();
 		int inventoryAmount = countCurrency(playerInventory, currency);
@@ -412,7 +421,7 @@ public class EconomyManager implements Economy{
 		BetterEconomy.bank.updateAmount(currency, BetterEconomy.bank.getCurrencyAmount(currency) + amount);
 		
 		//add funds
-		this.depositPlayer(sender.getName(), currency.getValue(amount));
+		this.depositPlayer((OfflinePlayer) sender, currency.getValue(amount));
 		sender.sendMessage(amount + " " + currency.getName() + " was deposited.");
 		return true;	
 	}
@@ -514,10 +523,10 @@ public class EconomyManager implements Economy{
 	/**
 	 * Sets a players balance. Can only be executed by the server
 	 * @param server Server
-	 * @param player Player to set balance
+	 * @param playerUUID the UUID of the player
 	 * @param amount amount to be set
 	 */
-	public boolean setBalance(CommandSender server, String playerName, double amount) {
+	public boolean setBalance(CommandSender server, UUID playerUUID, double amount) {
 
 		//make sure its the server
 		if (!(server instanceof ConsoleCommandSender)){
@@ -525,9 +534,9 @@ public class EconomyManager implements Economy{
 			return false;
 		}
 		
-		Account account = accounts.get(playerName);
+		Account account = accounts.get(playerUUID);
 		if (account == null){
-			server.sendMessage("No account for " + playerName);
+			server.sendMessage("No account for " + playerUUID);
 			return false;
 		}
 		
@@ -602,20 +611,30 @@ public class EconomyManager implements Economy{
 		return true;
 	}
 
-	public boolean pay(CommandSender sender, String receiver, double amount) {
-
-		if (!hasAccount(sender.getName())){
+	public boolean pay(CommandSender sender, OfflinePlayer receiver, double amount) {
+		
+		if (!(sender instanceof Player)) {
+			sender.sendMessage("Only players can send a pay command...");
+			return false;
+		}
+		
+		UUID PID;
+		OfflinePlayer player;
+		PID = ((Player) sender).getUniqueId();
+		player = Bukkit.getOfflinePlayer(PID);
+		
+		if (!hasAccount(player)){
 			sender.sendMessage("I'm sorry, but you do not have an account");
 			return false;
 		}
 		
 		if (!hasAccount(receiver)){
-			sender.sendMessage("I'm sorry, but " + receiver + " does not have an account");
+			sender.sendMessage("I'm sorry, but " + receiver.getName() + " does not have an account");
 			return false;
 		}
 		
 		//make sure sender has enough money
-		Account sendersAccount = accounts.get(sender.getName());
+		Account sendersAccount = accounts.get(player.getUniqueId());
 		if (sendersAccount.getBalance() < amount){
 			sender.sendMessage("I'm sorry, but you do not have that much money in your account");
 			return false;
@@ -625,12 +644,14 @@ public class EconomyManager implements Economy{
 		sendersAccount.withdraw(amount);
 		
 		//pay the player
-		Account receiverAccount = accounts.get(receiver);
+		Account receiverAccount = accounts.get(receiver.getUniqueId());
 		receiverAccount.deposit(amount);
 		
 		//notify both players
-		sender.sendMessage("You have payed " + receiver + " $" + amount + " dollars");
-		Bukkit.getPlayer(receiver).sendMessage("" + sender.getName() + " has payed you $" + amount + " dollars");
+		sender.sendMessage("You have payed " + receiver.getName() + " $" + amount + " dollars");
+		if (receiver.getPlayer() != null) {
+			receiver.getPlayer().sendMessage("" + sender.getName() + " has payed you $" + amount + " dollars");
+		}
 		return true;
 	}
 
@@ -646,7 +667,7 @@ public class EconomyManager implements Economy{
 		
 		int i = 0;
 		for (Account a: sortedList){
-			sender.sendMessage(a.getOwner() + ": " + a.getBalance());
+			sender.sendMessage(a.getOwner().getName() + ": " + a.getBalance());
 			i++;
 			if (i == number){
 				return true;
@@ -1032,15 +1053,15 @@ public class EconomyManager implements Economy{
      * @return if the account creation was successful
      */
 	@Override
-	public boolean createPlayerAccount(String playerName) {
+	public boolean createPlayerAccount(OfflinePlayer player) {
 		
 		//make sure player doesn't already have an account
-		if (this.hasAccount(playerName)){
+		if (this.hasAccount(player)){
 			return false;
 		}
 		
 		//create a new account
-		accounts.put(playerName, new Account(playerName, startingAmount));
+		accounts.put(player.getUniqueId(), new Account(player, startingAmount));
 		return true;
 	}
 
@@ -1050,8 +1071,8 @@ public class EconomyManager implements Economy{
      * @return if the account creation was successful
      */
 	@Override
-	public boolean createPlayerAccount(String playerName, String world) {
-		return createPlayerAccount(playerName);
+	public boolean createPlayerAccount(OfflinePlayer player, String world) {
+		return createPlayerAccount(player);
 	}
 
 	/**
@@ -1094,21 +1115,21 @@ public class EconomyManager implements Economy{
      * @return Detailed response of transaction
      */
 	@Override
-	public EconomyResponse depositPlayer(String playerName, double amount) {
+	public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
 		
 		//make sure the player has an account
-		if (!(hasAccount(playerName))){
-			return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists for the player " + playerName);
+		if (!(hasAccount(player))){
+			return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists for the player " + player.getName() +"(UUID: " + player.getUniqueId());
 		}
 		
 		//get the account
-		Account account = accounts.get(playerName);
+		Account account = accounts.get(player.getUniqueId());
 		
 		//deposit from the account
 		account.deposit(amount);
 		
 		//return success
-		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully removed "+ amount +" from " + playerName + "'s account");
+		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully removed "+ amount +" from " + player.getName() + "{" + player.getUniqueId() + "}'s account");
 	}
 
 	/**
@@ -1119,8 +1140,8 @@ public class EconomyManager implements Economy{
      * @return Detailed response of transaction
      */
 	@Override
-	public EconomyResponse depositPlayer(String playerName, String world, double amount) {
-		return depositPlayer(playerName, amount);
+	public EconomyResponse depositPlayer(OfflinePlayer player, String world, double amount) {
+		return depositPlayer(player, amount);
 	}
 
 	/**
@@ -1157,8 +1178,8 @@ public class EconomyManager implements Economy{
      * @return Amount currently held in players account
      */
 	@Override
-	public double getBalance(String playerName) {
-		return accounts.get(playerName).getBalance();
+	public double getBalance(OfflinePlayer player) {
+		return accounts.get(player.getUniqueId()).getBalance();
 	}
 
 	/**
@@ -1169,8 +1190,8 @@ public class EconomyManager implements Economy{
      * @return Amount currently held in players account
      */
 	@Override
-	public double getBalance(String playerName, String world) {
-		return getBalance(playerName);
+	public double getBalance(OfflinePlayer player, String world) {
+		return getBalance(player);
 	}
 
 	/**
@@ -1201,21 +1222,21 @@ public class EconomyManager implements Economy{
      * @return True if <b>playerName</b> has <b>amount</b>, False else wise
      */
 	@Override
-	public boolean has(String playerName, double amount) {
-		return accounts.get(playerName).getBalance() >= amount;
+	public boolean has(OfflinePlayer player, double amount) {
+		return accounts.get(player.getUniqueId()).getBalance() >= amount;
 	}
 
 	/**
      * Checks if the player account has the amount in a given world - DO NOT USE NEGATIVE AMOUNTS
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
-     * @param playerName
+     * @param player
      * @param worldName
      * @param amount
      * @return True if <b>playerName</b> has <b>amount</b>, False else wise
      */
 	@Override
-	public boolean has(String playerName, String world, double amount) {
-		return has(playerName, amount);
+	public boolean has(OfflinePlayer player, String world, double amount) {
+		return has(player, amount);
 	}
 
 	/**
@@ -1226,8 +1247,8 @@ public class EconomyManager implements Economy{
      * @return if the player has an account
      */
 	@Override
-	public boolean hasAccount(String playerName) {
-		return accounts.containsKey(playerName);
+	public boolean hasAccount(OfflinePlayer player) {
+		return accounts.containsKey(player.getUniqueId());
 	}
 
 	/**
@@ -1241,8 +1262,8 @@ public class EconomyManager implements Economy{
      * @return if the player has an account
      */
 	@Override
-	public boolean hasAccount(String playerName, String world) {
-		return hasAccount(playerName);
+	public boolean hasAccount(OfflinePlayer player, String world) {
+		return hasAccount(player);
 	}
 
 	/**
@@ -1264,7 +1285,7 @@ public class EconomyManager implements Economy{
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse isBankMember(String arg0, String arg1) {
+	public EconomyResponse isBankMember(String arg0, OfflinePlayer arg1) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
@@ -1275,7 +1296,7 @@ public class EconomyManager implements Economy{
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse isBankOwner(String arg0, String arg1) {
+	public EconomyResponse isBankOwner(String arg0, OfflinePlayer arg1) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
@@ -1296,34 +1317,109 @@ public class EconomyManager implements Economy{
      * @return Detailed response of transaction
      */
 	@Override
-	public EconomyResponse withdrawPlayer(String playerName, double amount) {
+	public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
 		
 		//make sure the player has an account
-		if (!(hasAccount(playerName))){
-			return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists for the player " + playerName);
+		if (!(hasAccount(player))){
+			return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists for the player " + player.getName() + "{" + player.getUniqueId() + "}");
 		}
 		
 		//get the account
-		Account account = accounts.get(playerName);
+		Account account = accounts.get(player.getUniqueId());
 		
 		//withdraw from the account
 		account.withdraw(amount);
 		
 		//return success
-		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully took "+ amount + " from " + playerName + "'s account");
+		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully took "+ amount + " from " + player.getName() + "{" + player.getUniqueId() + "}" + "'s account");
 	}
 
 	/**
      * Withdraw an amount from a player on a given world - DO NOT USE NEGATIVE AMOUNTS
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
-     * @param playerName Name of player
+     * @param player player
      * @param worldName - name of the world
      * @param amount Amount to withdraw
      * @return Detailed response of transaction
      */
 	@Override
-	public EconomyResponse withdrawPlayer(String playerName, String world, double amount) {
-		return withdrawPlayer(playerName, amount);
+	public EconomyResponse withdrawPlayer(OfflinePlayer player, String world, double amount) {
+		return withdrawPlayer(player, amount);
+	}
+
+	@Override
+	public EconomyResponse createBank(String arg0, OfflinePlayer arg1) {
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
+	}
+
+	@Override
+	public boolean createPlayerAccount(String arg0) {
+		return createPlayerAccount(Bukkit.getOfflinePlayer(arg0));
+	}
+
+	@Override
+	public boolean createPlayerAccount(String playerName, String world) {
+		return createPlayerAccount(Bukkit.getOfflinePlayer(playerName), world);
+	}
+
+	@Override
+	public EconomyResponse depositPlayer(String playerName, double arg1) {
+		return depositPlayer(Bukkit.getOfflinePlayer(playerName), arg1);
+	}
+
+	@Override
+	public EconomyResponse depositPlayer(String playerName, String world, double arg2) {
+		return depositPlayer(Bukkit.getOfflinePlayer(playerName), world, arg2);
+	}
+
+	@Override
+	public double getBalance(String playerName) {
+		return getBalance(Bukkit.getOfflinePlayer(playerName));
+	}
+
+	@Override
+	public double getBalance(String playerName, String world) {
+		return getBalance(Bukkit.getOfflinePlayer(playerName), world);
+	}
+
+	@Override
+	public boolean has(String playerName, double arg1) {
+		return has(Bukkit.getOfflinePlayer(playerName), arg1);
+	}
+
+	@Override
+	public boolean has(String playerName, String world, double arg2) {
+		return has(Bukkit.getOfflinePlayer(playerName), world, arg2);
+	}
+
+	@Override
+	public boolean hasAccount(String playerName) {
+		return hasAccount(Bukkit.getOfflinePlayer(playerName));
+	}
+
+	@Override
+	public boolean hasAccount(String playerName, String world) {
+		return hasAccount(Bukkit.getOfflinePlayer(playerName), world);
+	}
+
+	@Override
+	public EconomyResponse isBankMember(String arg0, String arg1) {
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
+	}
+
+	@Override
+	public EconomyResponse isBankOwner(String arg0, String arg1) {
+		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
+	}
+
+	@Override
+	public EconomyResponse withdrawPlayer(String playerName, double arg1) {
+		return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), arg1);
+	}
+
+	@Override
+	public EconomyResponse withdrawPlayer(String playerName, String world, double arg2) {
+		return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), world, arg2);
 	}
 
 	//----------------------

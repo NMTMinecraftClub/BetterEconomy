@@ -86,6 +86,7 @@ public class CurrencyListener implements Listener{
 			if (lore.contains(ChatColor.RED + "(Not Currency)")){
 				
 				//prevent the event
+				
 				event.setCancelled(true);
 			}
 		}	
@@ -108,10 +109,16 @@ public class CurrencyListener implements Listener{
 			if (lore == null) continue;
 			
 			//check if the item is a fake currency
-			if (lore.contains(ChatColor.RED + "(Not Currency)")){
-				
+			if (lore.contains(ChatColor.RED + "(Not Currency)"))
+			if (manager.isCurrency(event.getCurrentItem())) { //we only care if it's being converted to a block or currency ingot/nugget. Swords and what-not
+				//cannot be converted back so we don't care
+
+				//no longer cancel event. Instead, mark the result with "Not Currency"
+				ItemMeta meta = event.getCurrentItem().getItemMeta();
+				meta.setLore(lore);
+				event.getCurrentItem().setItemMeta(meta);
 				//cancel the event
-				event.setCancelled(true);
+				//event.setCancelled(true);
 				return;
 			}
 		}
