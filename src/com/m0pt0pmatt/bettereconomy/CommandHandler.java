@@ -50,7 +50,7 @@ public class CommandHandler {
 				return false;
 			}
 			
-			return BetterEconomy.economy.setBalance(sender, UUID.fromString(args[0]), amount);
+			return BetterEconomy.economy.setBalance(sender, Bukkit.getOfflinePlayer(args[0]).getUniqueId(), amount);
 		}
 		
 		/**

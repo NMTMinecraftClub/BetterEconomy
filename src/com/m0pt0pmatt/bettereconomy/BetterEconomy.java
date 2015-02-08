@@ -113,9 +113,9 @@ public class BetterEconomy extends JavaPlugin{
 		}
 		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
 		ProtectedRegion region = rm.getRegion("__bank__global");
-		if (region != null){
-			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
-		}
+//		if (region != null){
+//			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
+//		}
 		
 		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
 	}

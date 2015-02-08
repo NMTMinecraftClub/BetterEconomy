@@ -537,7 +537,8 @@ public class EconomyManager implements Economy{
 		Account account = accounts.get(playerUUID);
 		if (account == null){
 			server.sendMessage("No account for " + playerUUID);
-			return false;
+			account = new Account(Bukkit.getOfflinePlayer(playerUUID));
+			accounts.put(playerUUID, account);
 		}
 		
 		double previousBalance = account.getBalance();
@@ -1343,81 +1344,97 @@ public class EconomyManager implements Economy{
      * @return Detailed response of transaction
      */
 	@Override
+	@Deprecated
 	public EconomyResponse withdrawPlayer(OfflinePlayer player, String world, double amount) {
 		return withdrawPlayer(player, amount);
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse createBank(String arg0, OfflinePlayer arg1) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	@Override
+	@Deprecated
 	public boolean createPlayerAccount(String arg0) {
 		return createPlayerAccount(Bukkit.getOfflinePlayer(arg0));
 	}
 
 	@Override
+	@Deprecated
 	public boolean createPlayerAccount(String playerName, String world) {
 		return createPlayerAccount(Bukkit.getOfflinePlayer(playerName), world);
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse depositPlayer(String playerName, double arg1) {
 		return depositPlayer(Bukkit.getOfflinePlayer(playerName), arg1);
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse depositPlayer(String playerName, String world, double arg2) {
 		return depositPlayer(Bukkit.getOfflinePlayer(playerName), world, arg2);
 	}
 
 	@Override
+	@Deprecated
 	public double getBalance(String playerName) {
 		return getBalance(Bukkit.getOfflinePlayer(playerName));
 	}
 
 	@Override
+	@Deprecated
 	public double getBalance(String playerName, String world) {
 		return getBalance(Bukkit.getOfflinePlayer(playerName), world);
 	}
 
 	@Override
+	@Deprecated
 	public boolean has(String playerName, double arg1) {
 		return has(Bukkit.getOfflinePlayer(playerName), arg1);
 	}
 
 	@Override
+	@Deprecated
 	public boolean has(String playerName, String world, double arg2) {
 		return has(Bukkit.getOfflinePlayer(playerName), world, arg2);
 	}
 
 	@Override
+	@Deprecated
 	public boolean hasAccount(String playerName) {
 		return hasAccount(Bukkit.getOfflinePlayer(playerName));
 	}
 
 	@Override
+	@Deprecated
 	public boolean hasAccount(String playerName, String world) {
 		return hasAccount(Bukkit.getOfflinePlayer(playerName), world);
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse isBankMember(String arg0, String arg1) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse isBankOwner(String arg0, String arg1) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse withdrawPlayer(String playerName, double arg1) {
 		return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), arg1);
 	}
 
 	@Override
+	@Deprecated
 	public EconomyResponse withdrawPlayer(String playerName, String world, double arg2) {
 		return withdrawPlayer(Bukkit.getOfflinePlayer(playerName), world, arg2);
 	}
