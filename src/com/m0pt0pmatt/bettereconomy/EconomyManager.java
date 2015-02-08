@@ -181,7 +181,14 @@ public class EconomyManager implements Economy{
 	 * @param sender The player executing the command
 	 */
 	public boolean showBalance(CommandSender sender) {
-		if (!(hasAccount(sender.getName()))){
+		//make sure its a player
+		if (!(sender instanceof Player)){
+			sender.sendMessage("Sorry, only players can execute this command");
+			return false;
+		}
+		
+		
+		if (!(hasAccount((OfflinePlayer) sender))){
 			sender.sendMessage("Error: for some reason you do not have an account");
 			return false;
 		}
@@ -340,7 +347,7 @@ public class EconomyManager implements Economy{
 		}
 		
 		Currency c; 
-		int i = (int)Math.floor(getBalance(sender.getName()) / (c = currencies.get(currencyName)).getValue());
+		int i = (int)Math.floor(getBalance((OfflinePlayer) sender) / (c = currencies.get(currencyName)).getValue());
 		Inventory playerInventory = ((Player) sender).getInventory();
 		
 		return withdraw(sender, currencyName, Math.min(countRoomForCurrency(playerInventory, c), i));
