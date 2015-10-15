@@ -14,8 +14,6 @@ import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-//import com.sk89q.worldguard.protection.managers.RegionManager;
-//import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * BetterEconomy is an economy plugin which is suited for the specific needs
