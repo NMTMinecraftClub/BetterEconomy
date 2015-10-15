@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.accounts.UUIDFetcher;
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -46,11 +47,16 @@ public class CommandHandler {
 			try{
 				amount = Double.parseDouble(args[1]);
 			} catch(Exception e){
-				sender.sendMessage("Error. Enter a valid number");
+				sender.sendMessage("Error. Enter a valid number.");
 				return false;
 			}
 			
-			return BetterEconomy.economy.setBalance(sender, Bukkit.getOfflinePlayer(args[0]).getUniqueId(), amount);
+			try {
+				return BetterEconomy.economy.setBalance(sender, UUIDFetcher.getUUIDOf(args[0]), amount);
+			} catch (Exception e) {
+				sender.sendMessage("That player does not exist.");
+				return false;
+			}
 		}
 		
 		/**
@@ -129,7 +135,12 @@ public class CommandHandler {
 				receiver_id = null;
 			}
 			
-			return BetterEconomy.economy.pay(sender, receiver_id == null ? Bukkit.getOfflinePlayer(args[0]) : Bukkit.getOfflinePlayer(receiver_id), amount);
+			try {
+				return BetterEconomy.economy.pay(sender, receiver_id == null ? Bukkit.getOfflinePlayer(UUIDFetcher.getUUIDOf(args[0])) : Bukkit.getOfflinePlayer(receiver_id), amount);
+			} catch (Exception e) {
+				sender.sendMessage("That player doesn't exist.");
+				return false;
+			}
 		}
 		
 		/**

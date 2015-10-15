@@ -5,23 +5,17 @@ import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.m0pt0pmatt.LandPurchasing.flags.CustomFlag;
-import com.m0pt0pmatt.LandPurchasing.managers.LandService;
 import com.m0pt0pmatt.bettereconomy.banks.Bank;
 import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.BooleanFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+//import com.sk89q.worldguard.protection.managers.RegionManager;
+//import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * BetterEconomy is an economy plugin which is suited for the specific needs
@@ -111,8 +105,8 @@ public class BetterEconomy extends JavaPlugin{
 		if (Bukkit.getWorld("HomeWorld") == null) {
 			getLogger().info("null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 		}
-		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-		ProtectedRegion region = rm.getRegion("__bank__global");
+//		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
+//		ProtectedRegion region = rm.getRegion("__bank__global");
 //		if (region != null){
 //			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
 //		}

@@ -30,7 +30,6 @@ import com.sk89q.worldedit.BlockVector;
 import com.sk89q.worldedit.bukkit.selections.Selection;
 import com.sk89q.worldguard.domains.DefaultDomain;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import com.sk89q.worldguard.protection.managers.RegionManager;
 import com.sk89q.worldguard.protection.regions.ProtectedCuboidRegion;
 import com.sk89q.worldguard.protection.regions.ProtectedRegion;
@@ -485,6 +484,8 @@ public class EconomyManager implements Economy{
 		return currencies.get(name[0]);
 	}
 	
+	//Currently unused, to be implemented or removed in the future
+	@SuppressWarnings("unused")
 	private Currency baseToBlock(Currency base){
 		return currencies.get(base.getName() + "_block");
 	}
@@ -557,54 +558,69 @@ public class EconomyManager implements Economy{
 	
 	public boolean createBank(CommandSender sender, String bankName) {
 		//get the region manager for the homeworld
-		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-		if (rm == null){
-			sender.sendMessage("No region manager for the homeworld");
-			return false;
-		}
-		
-		String name = "__bank__" + bankName;
-		//make sure name isn't already used
-		if (rm.getRegion(name) != null){
-			sender.sendMessage("I'm sorry, but the name " + bankName + " is already in use.");
-			return false;
-		}
-		
-		//get the WorldEdit selection
-		Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
-		if (selection == null){
-			sender.sendMessage("Please select an area for the bank before running this command.");
-			return false;
-		}
-		
-		BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
-		BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
-		
-		//create WorldGuard Region
-		ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
-		
-		//region.setFlag(BetterEconomy.isBank, State.ALLOW);
-		//TODO: make flags work again
-		
-		region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank");
-		
-		//add the new region to WorldGuard
-		rm.addRegion(region);
-		
-		//add player to the owner of the new region
-		DefaultDomain newDomain = new DefaultDomain();
-		newDomain.addPlayer("__Server");
-		rm.getRegion(name).setOwners(newDomain);
-		
-		//save WorldGuard
 		try {
-			rm.save();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+			if (!(sender instanceof Player)) {
+				sender.sendMessage("Only players can use this command.");
+				return false;
+			}
+			
+			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
+//			if (((Player)sender).getWorld().getName() != "HomeWorld") {
+//				sender.sendMessage("Banks can only be created in the HomeWorld.");
+//				return false;
+//			}
+			
+			if (rm == null) {
+				sender.sendMessage("No region manager is configured for the HomeWorld.");
+				return false;
+			}
 		
-		sender.sendMessage("Bank \"" + bankName + "\" was created.");
-		return true;
+			String name = "__bank__" + bankName;
+			//make sure name isn't already used
+			if (rm.getRegion(name) != null){
+				sender.sendMessage("I'm sorry, but the name " + bankName + " is already in use.");
+				return false;
+			}
+			
+			//get the WorldEdit selection
+			Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
+			if (selection == null){
+				sender.sendMessage("Please select an area for the bank before running this command.");
+				return false;
+			}
+			
+			BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
+			BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
+			
+			//create WorldGuard Region
+			ProtectedRegion region = new ProtectedCuboidRegion(name, b1, b2);
+			
+			//region.setFlag(BetterEconomy.isBank, State.ALLOW);
+			//TODO: make flags work again
+			
+			region.setFlag(DefaultFlag.GREET_MESSAGE, "Welcome to the bank.");
+			
+			//add the new region to WorldGuard
+			rm.addRegion(region);
+			
+			//add player to the owner of the new region
+			DefaultDomain newDomain = new DefaultDomain();
+			newDomain.addPlayer("__Server");
+			rm.getRegion(name).setOwners(newDomain);
+			
+			//save WorldGuard
+			try {
+				rm.save();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			sender.sendMessage("Bank \"" + bankName + "\" was created.");
+			return true;
+		} catch (Exception e) {
+			sender.sendMessage("WorldGuard is not configured for world \"" + ((Player)sender).getWorld().getName() + "\".");
+			return false;
+		}
 	}
 	
 	public boolean showBankValues(CommandSender sender){
@@ -1072,6 +1088,22 @@ public class EconomyManager implements Economy{
 		accounts.put(player.getUniqueId(), new Account(player, startingAmount));
 		return true;
 	}
+	
+	/**
+     * Attempts to create a player account for the given player
+     * @return if the account creation was successful
+     */
+	public boolean createPlayerAccount(UUID uuidOf) {
+		//make sure player doesn't already have an account
+				if (this.hasAccount(uuidOf)){
+					return false;
+				}
+				
+				//create a new account
+				accounts.put(uuidOf, new Account(Bukkit.getPlayer(uuidOf), startingAmount));
+				return true;
+		
+	}
 
 	/**
      * Attempts to create a player account for the given player on the specified world
@@ -1138,6 +1170,29 @@ public class EconomyManager implements Economy{
 		
 		//return success
 		return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully removed "+ amount +" from " + player.getName() + "{" + player.getUniqueId() + "}'s account");
+	}
+	
+	/**
+     * Deposit an amount to a player - DO NOT USE NEGATIVE AMOUNTS
+     * 
+     * @param uuidOf UUID of player
+     * @param amount Amount to deposit
+     * @return Detailed response of transaction
+     */
+	public EconomyResponse depositPlayer(UUID uuidOf, double amount) {
+		//make sure the player has an account
+				if (!(hasAccount(uuidOf))){
+					return new EconomyResponse(amount, 0, EconomyResponse.ResponseType.FAILURE, "No account exists for the player " + Bukkit.getPlayer(uuidOf).getName() +"(UUID: " + uuidOf);
+				}
+				
+				//get the account
+				Account account = accounts.get(uuidOf);
+				
+				//deposit from the account
+				account.deposit(amount);
+				
+				//return success
+				return new EconomyResponse(amount, account.getBalance(), EconomyResponse.ResponseType.SUCCESS, "Successfully removed "+ amount +" from " + Bukkit.getPlayer(uuidOf).getName() + "{" + uuidOf + "}'s account");
 	}
 
 	/**
@@ -1257,6 +1312,10 @@ public class EconomyManager implements Economy{
 	@Override
 	public boolean hasAccount(OfflinePlayer player) {
 		return accounts.containsKey(player.getUniqueId());
+	}
+	
+	public boolean hasAccount(UUID uuidOf) {
+		return accounts.containsKey(uuidOf);
 	}
 
 	/**
