@@ -717,6 +717,11 @@ public class EconomyManager implements Economy{
 		
 		//get the WorldEdit selection
 		Selection selection = BetterEconomy.weplugin.getSelection((Player) sender);
+		if (selection == null) {
+			sender.sendMessage("You have not selected an area to evaluate!");
+			return false;
+		}
+		
 		BlockVector b1 = new BlockVector(selection.getMinimumPoint().getX(), selection.getMinimumPoint().getY(), selection.getMinimumPoint().getZ());
 		BlockVector b2 = new BlockVector(selection.getMaximumPoint().getX(), selection.getMaximumPoint().getY(), selection.getMaximumPoint().getZ());
 		

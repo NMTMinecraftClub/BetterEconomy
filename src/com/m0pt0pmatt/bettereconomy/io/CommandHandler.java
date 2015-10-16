@@ -1,4 +1,4 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.io;
 
 import java.util.Iterator;
 import java.util.UUID;
@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.BetterEconomy;
 import com.m0pt0pmatt.bettereconomy.accounts.UUIDFetcher;
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -16,7 +17,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * The CommandHandler is the class responsible for handling all commands.
- * @author Matthew Broomfield, Lucas Stuyvesant
+ * @author Matthew Broomfield, Lucas Stuyvesant, James Pelster
  *
  */
 public class CommandHandler {

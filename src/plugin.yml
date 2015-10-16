@@ -1,6 +1,7 @@
 name: BetterEconomy
 main: com.m0pt0pmatt.bettereconomy.BetterEconomy
 version: 0.7
+loadbefore: [GUIM, LandPurchasing]
 softdepend: [Vault, WorldGuard]
 commands:
     deposit:
