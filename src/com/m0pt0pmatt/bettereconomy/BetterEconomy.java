@@ -30,7 +30,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
  * @author Matthew Broomfield, Lucas Stuyvesant, and James Pelster
  *
  */
-public class BetterEconomy extends JavaPlugin{
+public class BetterEconomy extends JavaPlugin {
 	
 	/**
 	 * The Bank stores all inventory for the bank storage

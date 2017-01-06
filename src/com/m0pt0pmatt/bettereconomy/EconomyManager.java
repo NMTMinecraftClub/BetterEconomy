@@ -182,13 +182,13 @@ public class EconomyManager implements Economy{
 	public boolean showBalance(CommandSender sender) {
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
 		
 		if (!(hasAccount((OfflinePlayer) sender))){
-			sender.sendMessage("Error: for some reason you do not have an account");
+			sender.sendMessage("Error: for some reason you do not have an account.");
 			return false;
 		}
 		
@@ -200,37 +200,31 @@ public class EconomyManager implements Economy{
 		
 		//make sure the amount specified was a positive number
 		if (amount <= 0){
-			sender.sendMessage("Please enter a positive amount");
+			sender.sendMessage("Please enter a positive amount.");
 			return false;
 		}
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
-			return false;
-		}
-		
-		//make sure the player is in the right world
-		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
-			sender.sendMessage("Sorry, you have to be on the HomeWorld to withdraw");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
 		if (currency == null){
-			sender.sendMessage("Bad currency name");
+			sender.sendMessage("Bad currency name.");
 			return false;
 		}
 		
 		//make sure the currency is tradable
 		if (currency.getType().equals(Currency.CurrencyType.OTHER)){
 			sender.sendMessage("I'm sorry, but this currency cannot be withdrawn.");
-			sender.sendMessage("Convert the currency to its regular form to withdraw it");
+			sender.sendMessage("Convert the currency to its regular form to withdraw it.");
 			return false;
 		}
 		
 		//make sure player has enough funds
 		if (getBalance((OfflinePlayer) sender) < currency.getValue(amount)){
-			sender.sendMessage("Sorry, you dont have enough money");
+			sender.sendMessage("Sorry, you dont have enough money.");
 			return false;
 		}
 		
@@ -244,7 +238,7 @@ public class EconomyManager implements Economy{
 		
 		//if not enough currency in the bank
 		if(bankAmount < amount){
-			sender.sendMessage("Not enough " + currency.getName() + " in the bank");
+			sender.sendMessage("Not enough " + currency.getName() + " in the bank.");
 			return false;
 		}
 		
@@ -254,7 +248,7 @@ public class EconomyManager implements Economy{
 	/**
 	 * Allows a player to withdraw an amount of physical currency into his or her inventory, given he or she has the needed funds
 	 * @param sender The player executing the command
-	 * @param currency The name of the physical currency specified
+	 * @param currencyName The name of the physical currency specified
 	 * @param amount The amount of physical currency to be withdrawn
 	 */
 	public boolean withdraw(CommandSender sender, String currencyName, int amount) {
@@ -329,19 +323,13 @@ public class EconomyManager implements Economy{
 	/**
 	 * Withdraws as much of a given currency as the sender can afford
 	 * @param sender The individual sending the command
-	 * @param currency The currency to be deposited
+	 * @param currencyName The currency to be deposited
 	 */
 	public boolean withdrawAll(CommandSender sender, String currencyName){
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
-			return false;
-		}
-		
-		//make sure the player is in the right world
-		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
-			sender.sendMessage("Sorry, you have to be on the HomeWorld to deposit items");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
@@ -356,37 +344,31 @@ public class EconomyManager implements Economy{
 			
 		//make sure amount specified was a positive number
 		if (amount <= 0){
-			sender.sendMessage("Please enter a positive amount");
+			sender.sendMessage("Please enter a positive amount.");
 			return false;
 		}
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
-			return false;
-		}
-		
-		//make sure the player is in the right world
-		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
-			sender.sendMessage("Sorry, you have to be on the HomeWorld to deposit items");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 
 		if (currency == null){
-			sender.sendMessage("Bad currency name");
+			sender.sendMessage("Bad currency name.");
 			return false;
 		}
 		
 		//make sure the currency is tradable
 		if (currency.getType().equals(Currency.CurrencyType.OTHER)){
 			sender.sendMessage("I'm sorry, but this currency cannot be deposited.");
-			sender.sendMessage("Convert the currency to its regular form to deposit it");
+			sender.sendMessage("Convert the currency to its regular form to deposit it.");
 			return false;
 		}
 
 		//make sure enough was found
 		if (inventoryAmount < amount){
-			sender.sendMessage("Sorry, you dont have enough " + currency.getName());
+			sender.sendMessage("Sorry, you dont have enough " + currency.getName() + ".");
 			return false;
 		}
 		
@@ -396,13 +378,13 @@ public class EconomyManager implements Economy{
 	/**
 	 * Allows a player to deposit an amount of physical currency into his or her account, given he or she has the currency
 	 * @param sender The player executing the command
-	 * @param currency The name of the physical currency specified
+	 * @param currencyName The name of the physical currency specified
 	 * @param amount The amount of physical currency to be deposited
 	 */
 	public boolean deposit(CommandSender sender, String currencyName, int amount){
 		
 		if (!(sender instanceof Player)) {
-			sender.sendMessage("Sorry, only players can execute this command");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
@@ -452,19 +434,13 @@ public class EconomyManager implements Economy{
 	 /**
 	  * Deposits all instances of a currency in the sender's inventory
 	  * @param sender The individual sending the command
-	  * @param currency The currency to be deposited
+	  * @param currencyName The currency to be deposited
 	  */
 	 public boolean depositAll(CommandSender sender, String currencyName){
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
-			return false;
-		}
-		
-		//make sure the player is in the right world
-		if (!(Bukkit.getWorld("HomeWorld").getPlayers().contains(sender))){
-			sender.sendMessage("Sorry, you have to be on the HomeWorld to deposit items");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
@@ -493,17 +469,17 @@ public class EconomyManager implements Economy{
 	/**
 	 * Checks the value of a given amount of a given currency
 	 * @param sender The player executing the command
-	 * @param name The name of the currency
+	 * @param currencyName The name of the currency
 	 * @param amount The amount specified
 	 */
 	public boolean checkValue(CommandSender sender, String currencyName, int amount){
 		Currency currency = getCurrency(currencyName);
 		if (currency == null){
-			sender.sendMessage("Invalid currency");
+			sender.sendMessage("Invalid currenc.y");
 			return false;
 		}
 		
-		String message = amount + " " + currencyName + " is worth $" + (currency.getValue(amount));
+		String message = amount + " " + currencyName + " is worth $" + (currency.getValue(amount) + ".");
 		sender.sendMessage(message);
 		return true;
 	}
@@ -512,7 +488,7 @@ public class EconomyManager implements Economy{
 		
 		//make sure its a player
 		if (!(sender instanceof Player)){
-			sender.sendMessage("Sorry, only players can execute this command");
+			sender.sendMessage("Sorry, only players can execute this command.");
 			return false;
 		}
 		
@@ -525,7 +501,7 @@ public class EconomyManager implements Economy{
 		}
 		
 		//tell the player
-		sender.sendMessage("You are carrying $" + wealth + " worth in materials");
+		sender.sendMessage("You are carrying $" + wealth + " worth in materials.");
 		return true;
 	}
 	/**
@@ -538,13 +514,13 @@ public class EconomyManager implements Economy{
 
 		//make sure its the server
 		if (!(server instanceof ConsoleCommandSender)){
-			server.sendMessage("Sorry, only the server can execute this command");
+			server.sendMessage("Sorry, only the server can execute this command.");
 			return false;
 		}
 		
 		Account account = accounts.get(playerUUID);
 		if (account == null){
-			server.sendMessage("No account for " + playerUUID);
+			server.sendMessage("No account for " + playerUUID + ".");
 			account = new Account(Bukkit.getOfflinePlayer(playerUUID));
 			accounts.put(playerUUID, account);
 		}
@@ -563,15 +539,11 @@ public class EconomyManager implements Economy{
 				sender.sendMessage("Only players can use this command.");
 				return false;
 			}
-			
-			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-//			if (((Player)sender).getWorld().getName() != "HomeWorld") {
-//				sender.sendMessage("Banks can only be created in the HomeWorld.");
-//				return false;
-//			}
-			
+
+			RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld(((Player) sender).getWorld().getName()));
+
 			if (rm == null) {
-				sender.sendMessage("No region manager is configured for the HomeWorld.");
+				sender.sendMessage("No region manager is configured for " + ((Player) sender).getWorld().getName() + ".");
 				return false;
 			}
 		
@@ -648,19 +620,19 @@ public class EconomyManager implements Economy{
 		player = Bukkit.getOfflinePlayer(PID);
 		
 		if (!hasAccount(player)){
-			sender.sendMessage("I'm sorry, but you do not have an account");
+			sender.sendMessage("I'm sorry, but you do not have an account.");
 			return false;
 		}
 		
 		if (!hasAccount(receiver)){
-			sender.sendMessage("I'm sorry, but " + receiver.getName() + " does not have an account");
+			sender.sendMessage("I'm sorry, but " + receiver.getName() + " does not have an account.");
 			return false;
 		}
 		
 		//make sure sender has enough money
 		Account sendersAccount = accounts.get(player.getUniqueId());
 		if (sendersAccount.getBalance() < amount){
-			sender.sendMessage("I'm sorry, but you do not have that much money in your account");
+			sender.sendMessage("I'm sorry, but you do not have that much money in your account.");
 			return false;
 		}
 		
@@ -672,16 +644,16 @@ public class EconomyManager implements Economy{
 		receiverAccount.deposit(amount);
 		
 		//notify both players
-		sender.sendMessage("You have payed " + receiver.getName() + " $" + amount + " dollars");
+		sender.sendMessage("You have paid " + receiver.getName() + " $" + amount + " dollars.");
 		if (receiver.getPlayer() != null) {
-			receiver.getPlayer().sendMessage("" + sender.getName() + " has payed you $" + amount + " dollars");
+			receiver.getPlayer().sendMessage("" + sender.getName() + " has paid you $" + amount + " dollars.");
 		}
 		return true;
 	}
 
 	public boolean top(CommandSender sender, int number) {
 
-		sender.sendMessage("here are the top " + number + " accounts on the server:");
+		sender.sendMessage("Here are the top " + number + " accounts on the server:");
 		
 		List<Account> sortedList = new LinkedList<Account>();
 		sortedList.addAll(accounts.values());
@@ -993,8 +965,8 @@ public class EconomyManager implements Economy{
 	}
 	
 	/**
-	 * Calculates the sum of all physical currencies in the player's inventory
-	 * @param sender The player executing the command
+	 * Calculates the sum of all physical currencies in an inventory
+	 * @param inv The inventory to evaluate
 	 */
 	public int calculateValue(Inventory inv){
 		
@@ -1022,7 +994,7 @@ public class EconomyManager implements Economy{
 	//----------------------
 	/**
      * Returns the amount the bank has
-     * @param economyName
+     * @param arg0
      * @return EconomyResponse Object
      */
 	@Override
@@ -1033,8 +1005,8 @@ public class EconomyManager implements Economy{
 	/**
      * Deposit an amount into a bank account - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param economyName
-     * @param amount
+     * @param arg0
+     * @param arg1
      * @return EconomyResponse Object
      */
 	@Override
@@ -1045,35 +1017,35 @@ public class EconomyManager implements Economy{
 	/**
      * Returns true or false whether the bank has the amount specified - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param economyName
+     * @param bankName
      * @param amount
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse bankHas(String arg0, double arg1) {
+	public EconomyResponse bankHas(String bankName, double amount) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	/**
      * Withdraw an amount from a bank account - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param economyName
+     * @param accountName
      * @param amount
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse bankWithdraw(String arg0, double arg1) {
+	public EconomyResponse bankWithdraw(String accountName, double amount) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	/**
      * Creates a bank account with the specified name and the player as the owner
-     * @param economyName
+     * @param accountName
      * @param player
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse createBank(String arg0, String arg1) {
+	public EconomyResponse createBank(String accountName, String player) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
@@ -1144,7 +1116,7 @@ public class EconomyManager implements Economy{
 
 	/**
      * Deletes a bank account with the specified name.
-     * @param economyName
+     * @param arg0
      * @return if the operation completed successfully
      */
 	@Override
@@ -1155,7 +1127,7 @@ public class EconomyManager implements Economy{
 	/**
      * Deposit an amount to a player - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param playerName Name of player
+     * @param player The player
      * @param amount Amount to deposit
      * @return Detailed response of transaction
      */
@@ -1203,7 +1175,7 @@ public class EconomyManager implements Economy{
 	/**
      * Deposit an amount to a player - DO NOT USE NEGATIVE AMOUNTS
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
-     * @param playerName Name of player
+     * @param player The player
      * @param amount Amount to deposit
      * @return Detailed response of transaction
      */
@@ -1222,8 +1194,8 @@ public class EconomyManager implements Economy{
      * @return Human readable string describing amount
      */
 	@Override
-	public String format(double arg0) {
-		return "$" + arg0;
+	public String format(double amount) {
+		return "$" + amount;
 	}
 
 	/**
@@ -1242,7 +1214,7 @@ public class EconomyManager implements Economy{
 
 	/**
      * Gets balance of a player
-     * @param playerName
+     * @param player
      * @return Amount currently held in players account
      */
 	@Override
@@ -1253,7 +1225,7 @@ public class EconomyManager implements Economy{
 	/**
      * Gets balance of a player on the specified world.
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
-     * @param playerName
+     * @param player
      * @param world name of the world
      * @return Amount currently held in players account
      */
@@ -1285,7 +1257,7 @@ public class EconomyManager implements Economy{
 	/**
      * Checks if the player account has the amount - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param playerName
+     * @param player
      * @param amount
      * @return True if <b>playerName</b> has <b>amount</b>, False else wise
      */
@@ -1298,7 +1270,7 @@ public class EconomyManager implements Economy{
      * Checks if the player account has the amount in a given world - DO NOT USE NEGATIVE AMOUNTS
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
      * @param player
-     * @param worldName
+     * @param world
      * @param amount
      * @return True if <b>playerName</b> has <b>amount</b>, False else wise
      */
@@ -1311,7 +1283,7 @@ public class EconomyManager implements Economy{
      * Checks if this player has an account on the server yet
      * This will always return true if the player has joined the server at least once
      * as all major economy plugins auto-generate a player account when the player joins the server
-     * @param playerName
+     * @param player
      * @return if the player has an account
      */
 	@Override
@@ -1330,7 +1302,7 @@ public class EconomyManager implements Economy{
      * 
      * Note that we don't support multi-world accounts yet.
      * 
-     * @param playerName
+     * @param player
      * @return if the player has an account
      */
 	@Override
@@ -1353,22 +1325,22 @@ public class EconomyManager implements Economy{
 	/**
      * Check if the player is a member of the bank account
      * @param economyName
-     * @param playerName
+     * @param player
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse isBankMember(String arg0, OfflinePlayer arg1) {
+	public EconomyResponse isBankMember(String economyName, OfflinePlayer player) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
 	/**
      * Check if a player is the owner of a bank account
      * @param economyName
-     * @param playerName
+     * @param player
      * @return EconomyResponse Object
      */
 	@Override
-	public EconomyResponse isBankOwner(String arg0, OfflinePlayer arg1) {
+	public EconomyResponse isBankOwner(String economyName, OfflinePlayer player) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}
 
@@ -1384,7 +1356,7 @@ public class EconomyManager implements Economy{
 	 /**
      * Withdraw an amount from a player - DO NOT USE NEGATIVE AMOUNTS
      * 
-     * @param playerName Name of player
+     * @param player Name of player
      * @param amount Amount to withdraw
      * @return Detailed response of transaction
      */
@@ -1410,7 +1382,7 @@ public class EconomyManager implements Economy{
      * Withdraw an amount from a player on a given world - DO NOT USE NEGATIVE AMOUNTS
      * IMPLEMENTATION SPECIFIC - if an economy plugin does not support this the global balance will be returned.
      * @param player player
-     * @param worldName - name of the world
+     * @param world - name of the world
      * @param amount Amount to withdraw
      * @return Detailed response of transaction
      */
