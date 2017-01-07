@@ -94,24 +94,12 @@ public class BetterEconomy extends JavaPlugin {
 		try {
 			this.getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economy, this, ServicePriority.Normal);
 		} catch (Exception e) {
-			getLogger().warning("[HomeWorldPlugin] Unable to register Economy.");
+			getLogger().warning("Unable to register Economy.");
 		}
 
 		//set global flags
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/region flag __global__ blocked-cmds withdraw,deposit,wealth");
-		
-		//the worst fix ever
-		//get the region manager for the homeworld
-		if (Bukkit.getWorld("HomeWorld") == null) {
-			getLogger().log(Level.SEVERE, "No world called \"HomeWorld\" exists!!!");
-		}
-//		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-//		ProtectedRegion region = rm.getRegion("__bank__global");
-//		if (region != null){
-//			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
-//		}
-		
-		//getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
+
 		Bukkit.getPluginManager().callEvent(new EconomyLoadEvent(economy));
 	}
 

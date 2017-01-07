@@ -533,7 +533,7 @@ public class EconomyManager implements Economy{
 	}
 	
 	public boolean createBank(CommandSender sender, String bankName) {
-		//get the region manager for the homeworld
+		//get the region manager for the world
 		try {
 			if (!(sender instanceof Player)) {
 				sender.sendMessage("Only players can use this command.");
@@ -1045,6 +1045,7 @@ public class EconomyManager implements Economy{
      * @return EconomyResponse Object
      */
 	@Override
+    @Deprecated
 	public EconomyResponse createBank(String accountName, String player) {
 		return new EconomyResponse(0, 0, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "Not Implemented");
 	}

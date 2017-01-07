@@ -170,10 +170,10 @@ public class CommandHandler {
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.VALUE.command)){
 			
 			if (args.length == 1){
-				if (args[0].equalsIgnoreCase("current")){
+				if (args[0].equalsIgnoreCase("current")) {
 					return BetterEconomy.economy.calculateWealth(sender);
 				}
-				else if (args[0].equalsIgnoreCase("bank")){
+				else if (args[0].equalsIgnoreCase("bank")) {
 					return BetterEconomy.economy.showBankValues(sender);
 				}
 				else{

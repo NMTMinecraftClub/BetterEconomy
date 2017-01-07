@@ -51,7 +51,7 @@ public class EconomyListener implements Listener{
 			
 			economy.createPlayerAccount(event.getPlayer());
 			event.getPlayer().sendMessage("Your new account has been made");
-			System.out.println("[HomeWorldPlugin-Economy] made new account for " + event.getPlayer().getName());
+			System.out.println("Made new account for " + event.getPlayer().getName());
 		}
 	}
 	
