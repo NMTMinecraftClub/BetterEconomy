@@ -1,6 +1,7 @@
 name: BetterEconomy
 main: com.m0pt0pmatt.bettereconomy.BetterEconomy
-version: 0.6
+version: 0.8
+loadbefore: [GUIM, LandPurchasing]
 softdepend: [Vault, WorldGuard]
 commands:
     deposit:
@@ -12,6 +13,7 @@ commands:
     value:
         description: Displays how much an amount of a certain currency is worth
     money:
+        aliases: [bal, balance, checkbal, checkbalance]
         description: Displays how much money is in your account
     setbalance:
         description: Server command. Sets a balance. Creates an account if one does not exist

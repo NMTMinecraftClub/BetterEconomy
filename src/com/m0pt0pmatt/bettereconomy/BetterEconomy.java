@@ -1,6 +1,7 @@
 package com.m0pt0pmatt.bettereconomy;
 
 import java.io.File;
+import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -9,15 +10,13 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.m0pt0pmatt.LandPurchasing.flags.CustomFlag;
 import com.m0pt0pmatt.bettereconomy.banks.Bank;
 import com.m0pt0pmatt.bettereconomy.currency.CurrencyListener;
+import com.m0pt0pmatt.bettereconomy.io.CommandHandler;
+import com.m0pt0pmatt.bettereconomy.io.EconomyLoadEvent;
 import com.m0pt0pmatt.bettereconomy.util.FileSavingThread;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * BetterEconomy is an economy plugin which is suited for the specific needs
@@ -28,10 +27,10 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
  * at banks. Banks, however, cannot "magically" exchange different physical
  * currencies. A.K.A: no items are created or deleted, only naturally generated
  * 
- * @author Matthew Broomfield, Lucas Stuyvesant
+ * @author Matthew Broomfield, Lucas Stuyvesant, and James Pelster
  *
  */
-public class BetterEconomy extends JavaPlugin{
+public class BetterEconomy extends JavaPlugin {
 	
 	/**
 	 * The Bank stores all inventory for the bank storage
@@ -61,10 +60,10 @@ public class BetterEconomy extends JavaPlugin{
 	//public static StateFlag isBank = new StateFlag("can-bank", false);
 	
 	/**
-	 * This is ran once the plugin is enabled. It is ran after the constructor.
-	 * loads the houses from a local file.
+	 * This is run once after the plugin is enabled.
+	 * It loads the houses from a local file.
 	 */
-	public void onEnable(){
+	public void onEnable() {
 		
 		if (!this.getDataFolder().exists()){
 			this.getDataFolder().mkdir();
@@ -86,40 +85,28 @@ public class BetterEconomy extends JavaPlugin{
 		load();
 		
 		//set up the thread that saves data
-		if (savingThread == null){
+		if (savingThread == null) {
 			savingThread = new FileSavingThread();
 			savingThread.start();
 		}
 		
 		//register the economy
-		try{
+		try {
 			this.getServer().getServicesManager().register(net.milkbowl.vault.economy.Economy.class, economy, this, ServicePriority.Normal);
-		}
-		catch (Exception e){
-			getLogger().warning("[HomeWorldPlugin] Unable to register Economy.");
+		} catch (Exception e) {
+			getLogger().warning("Unable to register Economy.");
 		}
 
 		//set global flags
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "/region flag __global__ blocked-cmds withdraw,deposit,wealth");
-		
-		//the worst fix ever
-		//get the region manager for the homeworld
-		if (Bukkit.getWorld("HomeWorld") == null) {
-			getLogger().info("null!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		}
-		RegionManager rm = BetterEconomy.wgplugin.getRegionManager(Bukkit.getWorld("HomeWorld"));
-		ProtectedRegion region = rm.getRegion("__bank__global");
-		if (region != null){
-			region.setFlag((StateFlag)CustomFlag.BANKFLAG.getFlag().getFlag(), StateFlag.State.ALLOW);
-		}
-		
-		getLogger().info("[HomeWorldPlugin] HomeWorldPlugin has been enabled.");
+
+		Bukkit.getPluginManager().callEvent(new EconomyLoadEvent(economy));
 	}
 
 	/**
 	 * Saves player accounts when the plugin is being disabled.
 	 */
-	public void onDisable(){
+	public void onDisable() {
 		savingThread.die = true;
 		save();
 		getLogger().info("BetterEconomy has been disabled.");
@@ -128,7 +115,7 @@ public class BetterEconomy extends JavaPlugin{
 	/**
 	 * Sends commands to the CommandHandler to be dealt with.
 	 */
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){ 
 		return CommandHandler.commands(sender, cmd, label, args);
 	}
 	
@@ -160,12 +147,13 @@ public class BetterEconomy extends JavaPlugin{
 	    	return null; // Maybe you want throw an exception instead
 	    }
 	    
+	    Bukkit.getPluginManager().getPlugin("BetterEconomy").getLogger().info("Hooked WorldGuard");
 	    return (WorldGuardPlugin) plugin;
 	}
 	
 	/**
-	 * method for WorldEdit to get the WorldEdit Plugin
-	 * @return the WorldEdit Plugin
+	 * Method to get the WorldEdit plugin
+	 * @return the WorldEdit plugin
 	 */
 	public static WorldEditPlugin getWorldEdit() {
 	    Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
@@ -174,7 +162,8 @@ public class BetterEconomy extends JavaPlugin{
 	    if (plugin == null || !(plugin instanceof WorldEditPlugin)) {
 	        return null; // Maybe you want throw an exception instead
 	    }
-	 
+	    
+	    Bukkit.getPluginManager().getPlugin("BetterEconomy").getLogger().info("Hooked WorldEdit");
 	    return (WorldEditPlugin) plugin;
 	}
 }

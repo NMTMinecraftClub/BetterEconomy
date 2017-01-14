@@ -1,4 +1,4 @@
-package com.m0pt0pmatt.bettereconomy;
+package com.m0pt0pmatt.bettereconomy.io;
 
 import java.util.Iterator;
 import java.util.UUID;
@@ -8,6 +8,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.m0pt0pmatt.bettereconomy.BetterEconomy;
+import com.m0pt0pmatt.bettereconomy.accounts.UUIDFetcher;
 import com.m0pt0pmatt.bettereconomy.commands.EconomyCommand;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.managers.RegionManager;
@@ -15,7 +17,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 
 /**
  * The CommandHandler is the class responsible for handling all commands.
- * @author Matthew Broomfield, Lucas Stuyvesant
+ * @author Matthew Broomfield, Lucas Stuyvesant, James Pelster
  *
  */
 public class CommandHandler {
@@ -46,11 +48,16 @@ public class CommandHandler {
 			try{
 				amount = Double.parseDouble(args[1]);
 			} catch(Exception e){
-				sender.sendMessage("Error. Enter a valid number");
+				sender.sendMessage("Error. Enter a valid number.");
 				return false;
 			}
 			
-			return BetterEconomy.economy.setBalance(sender, UUID.fromString(args[0]), amount);
+			try {
+				return BetterEconomy.economy.setBalance(sender, UUIDFetcher.getUUIDOf(args[0]), amount);
+			} catch (Exception e) {
+				sender.sendMessage("That player does not exist.");
+				return false;
+			}
 		}
 		
 		/**
@@ -129,7 +136,12 @@ public class CommandHandler {
 				receiver_id = null;
 			}
 			
-			return BetterEconomy.economy.pay(sender, receiver_id == null ? Bukkit.getOfflinePlayer(args[0]) : Bukkit.getOfflinePlayer(receiver_id), amount);
+			try {
+				return BetterEconomy.economy.pay(sender, receiver_id == null ? Bukkit.getOfflinePlayer(UUIDFetcher.getUUIDOf(args[0])) : Bukkit.getOfflinePlayer(receiver_id), amount);
+			} catch (Exception e) {
+				sender.sendMessage("That player doesn't exist.");
+				return false;
+			}
 		}
 		
 		/**
@@ -158,10 +170,10 @@ public class CommandHandler {
 		if(cmd.getName().equalsIgnoreCase(EconomyCommand.VALUE.command)){
 			
 			if (args.length == 1){
-				if (args[0].equalsIgnoreCase("current")){
+				if (args[0].equalsIgnoreCase("current")) {
 					return BetterEconomy.economy.calculateWealth(sender);
 				}
-				else if (args[0].equalsIgnoreCase("bank")){
+				else if (args[0].equalsIgnoreCase("bank")) {
 					return BetterEconomy.economy.showBankValues(sender);
 				}
 				else{

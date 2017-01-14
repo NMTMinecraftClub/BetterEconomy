@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 
+import com.m0pt0pmatt.bettereconomy.accounts.UUIDFetcher;
 import com.m0pt0pmatt.bettereconomy.currency.Currency;
 
 /**
@@ -46,11 +47,11 @@ public class EconomyListener implements Listener{
 		}
 		
 		//If player does not have an account, create one
-		if (!(economy.hasAccount(event.getPlayer().getName()))){
+		if (!(economy.hasAccount(event.getPlayer()))){
 			
 			economy.createPlayerAccount(event.getPlayer());
 			event.getPlayer().sendMessage("Your new account has been made");
-			System.out.println("[HomeWorldPlugin-Economy] made new account for " + event.getPlayer().getName());
+			System.out.println("Made new account for " + event.getPlayer().getName());
 		}
 	}
 	
@@ -78,14 +79,18 @@ public class EconomyListener implements Listener{
 			player.sendMessage("$" + valueLost + " was lost from your EnderChest (" + percentLost + "% of currencies)");
 			
 			if(player.getKiller() != null){
-				economy.depositPlayer(player.getKiller().getName(), valueLost);
+				economy.depositPlayer(player.getKiller().getPlayer(), valueLost);
 				player.getKiller().sendMessage("You have been rewarded " + valueLost + "for killing " + player.getName());
 			}
 			else{
-				if (!economy.hasAccount("__Server")){
-					economy.createPlayerAccount("__Server");
+				try {
+					if (!economy.hasAccount(UUIDFetcher.getUUIDOf("__Server"))){
+						economy.createPlayerAccount(UUIDFetcher.getUUIDOf("__Server"));
+					}
+					economy.depositPlayer(UUIDFetcher.getUUIDOf("__Server"), valueLost);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				economy.depositPlayer("__Server", valueLost);
 			}
 		}
 	}
